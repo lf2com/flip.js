@@ -1,0 +1,40 @@
+{
+  "name": "@lf2com/flip.js",
+  "version": "1.0.0",
+  "description": "Flip.js is a",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "webpack serve --mode development --progress",
+    "dev:public": "npm run dev -- --env public=true",
+    "build": "webpack --mode production",
+    "lint": "eslint src/**/*.ts"
+  },
+  "author": "Wan Wan",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lf2com/flip.js"
+  },
+  "keywords": [
+    "flip"
+  ],
+  "bugs": {
+    "url": "https://github.com/lf2com/knob.js/issues"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/preset-typescript": "^7.15.0",
+    "@typescript-eslint/eslint-plugin": "^4.29.3",
+    "@typescript-eslint/parser": "^4.29.3",
+    "babel-loader": "^8.2.2",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-import": "^2.24.2",
+    "html-webpack-plugin": "^5.3.2",
+    "typescript": "^4.4.2",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^4.0.0"
+  }
+}
