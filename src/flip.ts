@@ -7,6 +7,7 @@ import Attributes from './values/attributes';
 import Directions from './values/directions';
 import Modes from './values/modes';
 import Slots from './values/slots';
+import Styles from './values/styles';
 
 const nodeName = 'flip-pack';
 
@@ -16,7 +17,7 @@ const template = document.createElement('template');
 template.innerHTML = `
   <style>
     :host {
-      --3d-perspective: 100vmax;
+      --3d-perspective: 10rem;
 
       position: relative;
       display: inline-block;
@@ -61,12 +62,17 @@ class Flip extends HTMLElement {
 
   #maxFlips: number | undefined;
 
+  #perspective: string = '10rem';
+
+  #rootElement: HTMLElement;
+
   constructor() {
     super();
 
     const shadowRoot = this.attachShadow({ mode: 'open' });
 
     shadowRoot.append(template.content.cloneNode(true));
+    this.#rootElement = shadowRoot.querySelector('flip') as HTMLElement;
     (shadowRoot.querySelector('slot:not([name])') as HTMLSlotElement)
       .addEventListener('slotchange', () => {
         this.#cards = Array.from(
@@ -93,6 +99,7 @@ class Flip extends HTMLElement {
       Attributes.direction,
       Attributes.minFlips,
       Attributes.maxFlips,
+      Attributes.perspective,
     ];
   }
 
@@ -158,6 +165,12 @@ class Flip extends HTMLElement {
         }
         break;
       }
+
+      case Attributes.perspective:
+        if (this.hasAttribute(Attributes.perspective)) {
+          this.perspective = this.getAttribute(Attributes.perspective) as string;
+        }
+        break;
     }
   }
 
@@ -280,6 +293,23 @@ class Flip extends HTMLElement {
       throw new RangeError(
         'Setting max flips that is less than min flips might cause flipping error',
       );
+    }
+  }
+
+  /**
+   * Returns 3D perspective value.
+   */
+  get perspective(): string {
+    return this.#perspective;
+  }
+
+  /**
+   * Sets 3D perspective value.
+   */
+  set perspective(perspective: string) {
+    if (typeof perspective === 'string') {
+      this.#perspective = perspective;
+      this.#rootElement.style.setProperty(Styles.perspective, perspective);
     }
   }
 

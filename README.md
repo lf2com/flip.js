@@ -294,23 +294,69 @@ Direction of flipping. Default is `down`:
 | left | Flipping left |
 | right | Flipping right |
 
+```html
+<!-- set direction -->
+<flip-pack direction="left">
+  <div class="card">A</div>
+  <div class="card">B</div>
+  <div class="card">C</div>
+  <div class="card">D</div>
+</flip-pack>
+```
+
+```js
+// set direction
+flip.direction = 'left';
+
+// get direction
+console.log('direction:', flip.direction);
+```
+
+### .perspective
+
+3D perspective of flipping. The value is the CSS perspective. Default is `10rem`. You might have to set the value if the size of card is large.
+
+**NOTICE: We should .**
+
+```html
+<!-- set perspective -->
+<flip-pack perspective="50vmin">
+  <div class="card">A</div>
+  <div class="card">B</div>
+  <div class="card">C</div>
+  <div class="card">D</div>
+</flip-pack>
+```
+
+```js
+// set perspective
+flip.perspective = '50vmin';
+
+// get perspective
+console.log('perspective:', flip.perspective);
+```
+
 ## Methods
 
 Flip supports the following methods:
 
-### Flip.getCardValue(_card_)
+### Static
+
+#### Flip.getCardValue(_card_)
 
 A static method returning the value of card element. Basically is the `value` attribute value of the card element.
 
-### Flip.cloneCard(_card_)
+#### Flip.cloneCard(_card_)
 
 This is a static method returning a card element cloned from the input one. It will call this method for cloning the previous and next card element to making the flipping animation.
 
-### .getCardByIndex(_index_)
+### Prototype
+
+#### .getCardByIndex(_index_)
 
 Returns the nth card by index of cards wrapped in the flip element. `null` if the target card doesn't exist.
 
-### .getCardInfo(_source_)
+#### .getCardInfo(_source_)
 
 Returns the card info. The source can be _number_ as card index or _HTMLElement_ as card element. Values of returned object:
 
@@ -319,19 +365,19 @@ Returns the card info. The source can be _number_ as card index or _HTMLElement_
 | index | _number_ | Index of card. `-1` if source doesn't exist |
 | card | _HTMLElement_ | Card element. `null` if source doesn't exist |
 
-### .getValueByIndex(_index_)
+#### .getValueByIndex(_index_)
 
 Returns the value of the nth card by index. `null` when the card doesn't exist.
 
-### .getIndexByCard(_card_)
+#### .getIndexByCard(_card_)
 
 Returns the index of card element of wrapped cards. The same as `flip.cards.indexOf(card)`. `-1` on the card doesn't exist.
 
-### .getIndexByValue(_value_)
+#### .getIndexByValue(_value_)
 
 Returns the index of card with the specific value. `-1` if there is no card matches the value.
 
-### .getNextIndex(_options?_)
+#### .getNextIndex(_options?_)
 
 Returns the next card index with options:
 
@@ -340,11 +386,11 @@ Returns the next card index with options:
 | different? | _boolean_ | `true` to prevent from getting the same card as the current one. Default is `true` |
 | mode? | _string_ | Mode of choosing the next card. Default is the configured mode value of flip |
 
-### .getNextCard(_options?_)
+#### .getNextCard(_options?_)
 
 Returns the next card with options the same as [`.getNextIndex(_options_)`](#getnextindexoptions).
 
-### .flip(_next?_, _options?_)
+#### .flip(_next?_, _options?_)
 
 Flips to the specific card element/index with flipping animation. If not specify target to flip, it will call [`.getNextIndex()`](#getnextindexoptions) to get the next card. If there are cards between the current card and target card, the flip element would flip over these cards to the target card.
 
@@ -363,23 +409,23 @@ await flip.flip();
 await flip.flip();
 ```
 
-### .flipToCard(_next_, _options?_)
+#### .flipToCard(_next_, _options?_)
 
 Alias of [`.flip()`](#flipnext-options) with the first argument for card element.
 
-### .flipToIndex(_index_, _options?_)
+#### .flipToIndex(_index_, _options?_)
 
 Alias of [`.flip()`](#flipnext-options) with the first argument for card index.
 
-### .flipDirectly(_next?_, _options?_)
+#### .flipDirectly(_next?_, _options?_)
 
-Alias of [`.flip()`](#flipnext-options) with the `direct` of options set to `true`.
+Alias of [`.flip()`](#flipnext-options) with the `direct` of options set to `true`, which flips card only once to the target card.
 
-### .flipToCardDirectly(_card_, _options?_)
+#### .flipToCardDirectly(_card_, _options?_)
 
 Alias of [`.flipDirectly()`](#flipdirectlynext-options) with the first argument for card element.
 
-### .flipToIndexDirectly(_index_, _options?_)
+#### .flipToIndexDirectly(_index_, _options?_)
 
 Alias of [`.flipDirectly()`](#flipdirectlynext-options) with the first argument for card index.
 

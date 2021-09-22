@@ -6,6 +6,7 @@ enum Attributes {
   direction = 'direction',
   minFlips = 'min-flips',
   maxFlips = 'max-flips',
+  perspective = 'perspective',
 }
 
 export default Attributes;
