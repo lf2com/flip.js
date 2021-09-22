@@ -1,9 +1,11 @@
 enum Attributes {
-  disabled = 'disabled',
+  index = 'index',
   value = 'value',
   mode = 'mode',
-  minFlips = 'minFlips',
-  maxFlips = 'maxFlips',
+  duration = 'duration',
+  direction = 'direction',
+  minFlips = 'min-flips',
+  maxFlips = 'max-flips',
 }
 
 export default Attributes;
