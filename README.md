@@ -388,7 +388,7 @@ Returns the next card index with options:
 
 #### .getNextCard(_options?_)
 
-Returns the next card with options the same as [`.getNextIndex(_options_)`](#getnextindexoptions).
+Returns the next card with options the same as [`.getNextIndex(options?)`](#getnextindexoptions).
 
 #### .flip(_next?_, _options?_)
 
