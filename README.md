@@ -12,13 +12,19 @@ Flip.js is an element for flipping effect for wrapped elements.
 
 Sets flip properties of duration, direction, and mode.
 
+![Flip](./demo/flip/demo.gif)
+
 [List][url-demo-list]
 
 Flips items of list, you can arrange, add, and remove items.
 
+![List](./demo/list/demo.gif)
+
 [Card][url-demo-card]
 
 Flips cards with images.
+
+![Card](./demo/card/demo.gif)
 
 ## Usage
 
