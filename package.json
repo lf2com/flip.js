@@ -1,7 +1,7 @@
 {
   "name": "@lf2com/flip.js",
   "version": "1.0.0",
-  "description": "Flip.js is a",
+  "description": "Flip.js is an element for flipping effect for wrapped card elements",
   "main": "index.ts",
   "scripts": {
     "dev": "webpack serve --mode development --progress",
@@ -36,5 +36,6 @@
     "webpack": "^5.51.1",
     "webpack-cli": "^4.8.0",
     "webpack-dev-server": "^4.0.0"
-  }
+  },
+  "dependencies": {}
 }
