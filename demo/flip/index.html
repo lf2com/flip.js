@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <title>Flip.js Demo - Flip</title>
+    <link href="./style.scss" type="text/scss" rel="stylesheet" />
+    <script src="../scss.js"></script>
+    <script src="../../dist/flip.min.js" defer></script>
+  </head>
+  <body>
+    <div id="duration" class="row">
+      <span class="name">Duration:</span>
+      <input type="number" min="0" value="400" />
+      ms
+    </div>
+    <div id="direction" class="row">
+      <span class="name">Direction:</span>
+      <input type="radio" name="direction" id="up" value="up"
+      /><label for="up">up</label>
+      <input type="radio" name="direction" id="right" value="right"
+      /><label for="right">right</label>
+      <input type="radio" name="direction" id="down" value="down" checked
+      /><label for="down">down</label>
+      <input type="radio" name="direction" id="left" value="left"
+      /><label for="left">left</label>
+    </div>
+    <div id="mode" class="row">
+      <span class="name">Mode:</span>
+      <input type="radio" name="mode" id="loop" value="loop" checked
+      /><label for="loop">loop</label>
+      <input type="radio" name="mode" id="random" value="random"
+      /><label for="random">random</label>
+    </div>
+    <div id="auto" class="row">
+      <input type="checkbox" id="auto-flip" checked
+      /><label for="auto-flip"
+      ><span class="name">Auto flip</span>
+      </label>
+    </div>
+    <div class="row">
+      <flip-pack id="flip">
+        <div class="card" style="background: #ccc;">0</div>
+        <div class="card" style="background: #fcc;">1</div>
+        <div class="card" style="background: #ffc;">2</div>
+        <div class="card" style="background: #cfc;">3</div>
+        <div class="card" style="background: #cff;">4</div>
+        <div class="card" style="background: #ccf;">5</div>
+        <div class="card" style="background: #fcf;">6</div>
+        <div class="card" style="background: #fff;">7</div>
+      </flip-pack>
+    </div>
+  </body>
+  <script src="./main.js"></script>
+</html>
