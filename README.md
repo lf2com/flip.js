@@ -4,8 +4,9 @@ Flip.js is an element for flipping effect for wrapped elements.
 
 ## Demo
 
-[url-demo-flip]: ./demo/flip
-[url-demo-list]: ./demo/list
+[url-demo-flip]: https://lf2com.github.io/flip.js/demo/flip
+[url-demo-list]: https://lf2com.github.io/flip.js/demo/list
+[url-demo-card]: https://lf2com.github.io/flip.js/demo/card
 
 [Flip][url-demo-flip]
 
@@ -14,6 +15,10 @@ Sets flip properties of duration, direction, and mode.
 [List][url-demo-list]
 
 Flips items of list, you can arrange, add, and remove items.
+
+[Card][url-demo-card]
+
+Flips cards with images.
 
 ## Usage
 
