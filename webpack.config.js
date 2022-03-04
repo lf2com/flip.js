@@ -1,5 +1,4 @@
 const path = require('path');
-const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 const BUILD_PATH = './dist';
 
@@ -11,14 +10,11 @@ module.exports = (env, options) => {
   );
 
   return {
-    entry: (PRODUCTION_MODE
-      ? path.resolve(__dirname, './index.ts')
-      : path.resolve(__dirname, './demo/index.ts')
-    ),
+    entry: path.resolve(__dirname, './index.ts'),
     output: {
       filename: (PRODUCTION_MODE
         ? 'flip.min.js'
-        : 'bundle.[contenthash].js'
+        : 'flip.dev.js'
       ),
       path: path.resolve(__dirname, BUILD_PATH),
       clean: true,
@@ -55,22 +51,16 @@ module.exports = (env, options) => {
         },
       ],
     },
-    plugins: (PRODUCTION_MODE
-      ? []
-      : [
-        new HtmlWebPackPlugin({
-          template: './demo/index.html',
-          filename: './index.html',
-        }),
-      ]
-    ),
+    plugins: [],
     devtool: 'inline-source-map',
     devServer: {
       https: false,
       host: DEV_PUBLIC ? 'local-ip' : 'localhost',
       port: '8080',
       compress: true,
-      open: true,
+      open: [
+        '/demo',
+      ],
       hot: true,
       static: {
         directory: path.resolve(__dirname),
