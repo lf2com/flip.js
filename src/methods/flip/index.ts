@@ -1,163 +1,145 @@
 import Flip from '../../flip';
 import { triggerEvent } from '../../utils/eventHandler';
-import Directions from '../../values/directions';
-import Events from '../../values/events';
-import Modes from '../../values/modes';
+import Direction from '../../values/direction';
+import Event from '../../values/event';
+import { CardInfo } from '../getCardInfo';
+import { GetNextCardOptions } from '../getNextCardIndex';
 import flipOneCard from './flipOneCard';
 
-export interface FlipOptions {
+export interface FlipOptions extends GetNextCardOptions {
   direct?: boolean;
-  direction?: Directions;
+  direction?: Direction;
   duration?: number;
 }
 
 export interface FlipDetail extends Required<FlipOptions> {
-  lastIndex: number;
-  lastCard: HTMLElement | null;
-  targetIndex: number;
-  targetCard: HTMLElement;
+  lastCardInfo: CardInfo;
+  targetCardInfo: CardInfo;
 }
+
+type FlipSource = number | string | HTMLElement | null;
 
 /**
  * Flips to specific card/index.
  */
-async function flip(
+async function flip<
+  A0 extends FlipSource | FlipOptions,
+  A1 extends A0 extends FlipOptions ? never : FlipOptions,
+>(
   this: Flip,
-  next: number | HTMLElement | null,
-  options: FlipOptions = {},
+  arg0?: A0,
+  arg1?: A1,
 ): Promise<void> {
+  const options: FlipOptions = (typeof arg0 === 'object' && !(arg0 instanceof HTMLElement)
+    ? arg0
+    : arg1
+  ) ?? {};
   const {
-    card: nextCard,
-    index: nextIndex,
-  } = this.getCardInfo(
-    next
-    ?? this.getNextIndex({
-      different: this.cards.length > 1,
-    }),
-  );
-
-  if (nextCard === null) {
-    if (next === undefined) {
-      return;
-    }
-
-    throw new ReferenceError('Target card doesn\'t exist');
-  }
-
-  const {
-    index: lastIndex,
-    card: lastCard,
-  } = this;
-  const {
-    direct = false,
+    mode = this.mode,
+    different = this.cardsCatch.length > 1,
+    direct = this.direct,
     duration = this.duration,
     direction = this.direction,
   } = options;
-  const startEventPassed = triggerEvent<FlipDetail>(
+  const targetSource = (arg0 === options || arg0 === undefined
+    ? this.getNextCardIndex({ different, mode })
+    : arg0
+  ) as number;
+  const targetCardInfo = this.getCardInfo(targetSource);
+  const {
+    index: targetIndex,
+    node: targetNode,
+  } = targetCardInfo;
+
+  if (targetNode === null) {
+    throw new ReferenceError(`Target card doesn't exist: ${targetSource}`);
+  }
+
+  const lastCardInfo = this.getCardInfo(this.index);
+  const passStartEvent = triggerEvent<FlipDetail>(
     this,
-    Events.flipStart,
+    Event.flipStart,
     {
       bubbles: true,
       cancelable: true,
       composed: true,
       detail: {
+        mode,
         direct,
+        different,
         duration,
         direction,
-        lastIndex,
-        lastCard,
-        targetIndex: nextIndex,
-        targetCard: nextCard,
+        lastCardInfo,
+        targetCardInfo,
       },
     },
   );
 
-  if (!startEventPassed) {
+  if (!passStartEvent) {
     return;
   }
 
   if (direct) {
     await flipOneCard.call(this, {
+      mode,
       direct,
+      different,
       duration,
       direction,
-      lastIndex,
-      lastCard,
-      nextIndex,
-      nextCard,
+      lastCardInfo,
+      nextCardInfo: targetCardInfo,
     });
   } else {
     const {
-      mode,
-      cards,
       minFlips,
       maxFlips,
     } = this;
-    const cardsLength = cards.length;
-    const getNextIndex = (times: number) => {
-      switch (mode) {
-        default:
-        case Modes.loop:
-          return this.getNextIndex() as number;
-
-        case Modes.random: {
-          if (times < maxFlips) {
-            let index = this.getNextIndex() as number;
-
-            while (cardsLength > 2
-              && (times < minFlips && index === nextIndex)
-            ) {
-              index = this.getNextIndex() as number;
-            }
-
-            return index;
-          }
-
-          return nextIndex;
-        }
-      }
-    };
-    const flipNext = async (
-      prevIndex: number,
-      prevCard: HTMLElement | null,
-      times = 1,
-    ): Promise<void> => {
-      const targetIndex = getNextIndex(times);
-      const targetCard = this.getCardByIndex(targetIndex) as HTMLElement;
+    const flipNext = async (times = 1): Promise<void> => {
+      const nextIndex = (times < maxFlips
+        ? (
+          this.getNextCardIndex({
+            mode,
+            different: times < minFlips,
+          })
+        )
+        : targetIndex
+      );
+      const nextCardInfo = this.getCardInfo(nextIndex);
+      const currentCardInfo = this.getCardInfo(this.index);
 
       await flipOneCard.call(this, {
+        mode,
         direct,
+        different,
         duration,
         direction,
-        lastIndex: prevIndex,
-        lastCard: prevCard,
-        nextIndex: targetIndex,
-        nextCard: targetCard,
+        lastCardInfo: currentCardInfo,
+        nextCardInfo,
       });
 
-      if (targetIndex !== nextIndex) {
-        await flipNext(targetIndex, targetCard, times + 1);
+      if (nextIndex !== targetIndex) {
+        await flipNext(times + 1);
       }
     };
 
-    await flipNext(lastIndex, lastCard);
+    await flipNext();
   }
 
   triggerEvent<FlipDetail>(
     this,
-    Events.flipEnd,
+    Event.flipEnd,
     {
       bubbles: true,
       cancelable: false,
       composed: true,
       detail: {
+        mode,
         direct,
+        different,
         duration,
         direction,
-        lastIndex,
-        lastCard,
-        targetIndex: nextIndex,
-        targetCard: nextCard,
+        lastCardInfo,
+        targetCardInfo,
       },
     },
   );

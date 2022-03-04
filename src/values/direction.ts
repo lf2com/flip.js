@@ -1,8 +1,8 @@
-enum Directions {
+enum Direction {
   up = 'up',
   down = 'down',
   left = 'left',
   right = 'right',
 }
 
-export default Directions;
+export default Direction;

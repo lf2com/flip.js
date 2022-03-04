@@ -1,37 +1,58 @@
 import Flip from '../flip';
 
-interface CardInfo {
+export interface CardInfo {
   index: number;
-  card: HTMLElement | null;
+  node: HTMLElement | null;
+  value: string | null;
 }
 
 /**
- * Returns card info with index and card element.
+ * Returns card info by reference.
  */
 function getCardInfo(
   this: Flip,
-  source: number | HTMLElement | null,
+  source: number | string | HTMLElement | null,
 ): CardInfo {
-  if (source instanceof HTMLElement) {
-    const index = this.getIndexByCard(source);
-
-    return {
-      index,
-      card: index >= 0 ? source : null,
-    };
-  }
+  // null
   if (source === null) {
     return {
+      node: null,
       index: -1,
-      card: null,
+      value: null,
     };
   }
 
-  const card = this.getCardByIndex(source);
+  // card node
+  if (source instanceof HTMLElement) {
+    const index = this.getCardIndex(source);
+    const card = index === -1 ? null : source;
+
+    return {
+      node: card,
+      index,
+      value: Flip.getCardValue(card),
+    };
+  }
+
+  // value
+  if (typeof source === 'string') {
+    const index = this.getCardIndex(source);
+    const card = index === -1 ? null : this.getCardNode(index);
+
+    return {
+      node: card,
+      index,
+      value: Flip.getCardValue(card),
+    };
+  }
+
+  // index
+  const card = this.getCardNode(source);
 
   return {
-    card,
+    node: card,
     index: card === null ? -1 : source,
+    value: Flip.getCardValue(card),
   };
 }
 

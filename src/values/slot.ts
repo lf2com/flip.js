@@ -1,6 +1,6 @@
-enum Slots {
+enum Slot {
   current = 'current',
   temp = 'temp',
 }
 
-export default Slots;
+export default Slot;

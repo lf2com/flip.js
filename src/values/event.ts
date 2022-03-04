@@ -1,8 +1,8 @@
-enum Events {
+enum Event {
   flipStart = 'flipstart',
   flipCardStart = 'flipcardstart',
   flipCardEnd = 'flipcardend',
   flipEnd = 'flipend',
 }
 
-export default Events;
+export default Event;

@@ -1,10 +1,12 @@
-import Flip from '../..';
+import Flip from '../../flip';
 import prefixCss from '../../utils/prefixCss';
-import Directions from '../../values/directions';
-import createTempCard from '../../utils/createTempCard';
+import Direction from '../../values/direction';
+import createTempNode from '../../utils/createTempNode';
 import { FlipAnimationOption } from './flipAnimation';
 
-const backgroundStyle = `
+type StyleGetter = (flip: Flip) => string;
+
+const getBackgroundStyle: StyleGetter = () => (`
   :host {
     --upper-y-top: -100vh;
     --upper-y-bottom: 50%;
@@ -18,68 +20,63 @@ const backgroundStyle = `
       -100vw var(--y-bottom)
     );`, 'webkit')}
   }
-`;
-const wrapperStyle = `
-  ${prefixCss(`@keyframes clip {
+`);
+
+const getCardStyle: StyleGetter = (flip) => (`
+  ${prefixCss(`@keyframes flip {
     0% {
-      ${prefixCss(`clip-path: polygon(
-        -100vw var(--start-y-top),
-        calc(100% + 100vw) var(--start-y-top),
-        calc(100% + 100vw) var(--start-y-bottom),
-        -100vw var(--start-y-bottom)
-      );`, 'webkit')}
+      ${prefixCss('transform: perspective(var(--vert-perspective)) rotateX(0);', 'webkit')}
     }
-    50%, 100% {
-      ${prefixCss(`clip-path: polygon(
-        -100vw var(--end-y-top),
-        calc(100% + 100vw) var(--end-y-top),
-        calc(100% + 100vw) var(--end-y-bottom),
-        -100vw var(--end-y-bottom)
-      );`, 'webkit')}
+    100% {
+      ${prefixCss('transform: perspective(var(--vert-perspective)) rotateX(var(--end-deg));', 'webkit')}
     }
   }`, 'webkit')}
 
   :host {
-    --vert-perspective: var(--3d-perspective, 5em);
+    --vert-perspective: ${flip.perspective};
     --upper-y-top: -100vh;
     --upper-y-bottom: 50%;
     --lower-y-top: 50%;
     --lower-y-bottom: calc(100% + 100vh);
-
-    ${prefixCss('perspective: var(--vert-perspective);', 'webkit')}
-    ${prefixCss('animation: clip var(--duration) forwards steps(1, end);', 'webkit')}
-  }
-`;
-const cardStyle = `
-  ${prefixCss(`@keyframes flip {
-    0% {
-      ${prefixCss('transform: rotateX(0);', 'webkit')}
-    }
-    100% {
-      ${prefixCss('transform: rotateX(var(--end-deg));', 'webkit')}
-    }
-  }`, 'webkit')}
-
-  :host {
     --down-end-deg: -180deg;
     --up-end-deg: 180deg;
 
-    ${prefixCss('transform-style: preserve-3d;', 'webkit')}
+    ${prefixCss(`clip-path: polygon(
+      -100vw var(--start-y-top),
+      calc(100% + 100vw) var(--start-y-top),
+      calc(100% + 100vw) var(--start-y-bottom),
+      -100vw var(--start-y-bottom)
+    );`, 'webkit')}
     ${prefixCss('animation: flip var(--duration) forwards linear;', 'webkit')}
   }
-`;
-const nextCardStyle = `
-  :host {
-    ${prefixCss('backface-visibility: hidden;', 'webkit')}
-    ${prefixCss('transform: rotateX(180deg);', 'webkit')}
-  }
-`;
-const lastCardStyle = `
-  :host {
-    ${prefixCss('backface-visibility: hidden;', 'webkit')}
-  }
-`;
+`);
 
+const getNextCardStyle: StyleGetter = () => (`
+  ${prefixCss(`@keyframes clip-next {
+    0% { opacity: 0 }
+    50%, 100% { opacity: 1 }
+  }`, 'webkit')}
+
+  :host {
+    ${prefixCss('transform: rotateX(180deg);', 'webkit')}
+    ${prefixCss('animation: clip-next var(--duration) forwards steps(1, end);', 'webkit')}
+  }
+`);
+
+const getLastCardStyle: StyleGetter = () => (`
+  ${prefixCss(`@keyframes clip-last {
+    0% { opacity: 1 }
+    50%, 100% { opacity: 0 }
+  }`, 'webkit')}
+
+  :host {
+    ${prefixCss('animation: clip-last var(--duration) forwards steps(1, end);', 'webkit')}
+  }
+`);
+
+/**
+ * Flips card vertically.
+ */
 function flippingVertically(
   this: Flip,
   options: FlipAnimationOption,
@@ -87,49 +84,51 @@ function flippingVertically(
   const {
     duration,
     direction,
-    lastCard,
-    nextCard,
-    tempCard,
+    lastCardInfo,
+    nextCardInfo,
+    tempCardNode,
   } = options;
+  const {
+    node: lastCardNode,
+  } = lastCardInfo;
+  const nextCardNode = nextCardInfo.node as HTMLElement;
   const durationSec = duration / 1000;
-  const domBackground = createTempCard({ style: backgroundStyle });
-  const domWrapper = createTempCard({ style: wrapperStyle });
-  const domCard = createTempCard({ style: cardStyle });
-  const domNext = createTempCard({ style: nextCardStyle });
-  const domNextCard = Flip.cloneCard(nextCard);
+  const domBackground = createTempNode({ style: getBackgroundStyle(this) });
+  const domCard = createTempNode({ style: getCardStyle(this) });
+  const domNext = createTempNode({ style: getNextCardStyle(this) });
+  const domNextCard = Flip.cloneCard(nextCardNode);
 
   switch (direction) {
     default:
-    case Directions.down:
+    case Direction.down:
       domBackground.style.setProperty('--y-top', 'var(--lower-y-top)');
       domBackground.style.setProperty('--y-bottom', 'var(--lower-y-bottom)');
-      domWrapper.style.setProperty('--start-y-top', 'var(--upper-y-top)');
-      domWrapper.style.setProperty('--start-y-bottom', 'var(--upper-y-bottom)');
-      domWrapper.style.setProperty('--end-y-top', 'var(--lower-y-top)');
-      domWrapper.style.setProperty('--end-y-bottom', 'var(--lower-y-bottom)');
+      domCard.style.setProperty('--start-y-top', 'var(--upper-y-top)');
+      domCard.style.setProperty('--start-y-bottom', 'var(--upper-y-bottom)');
+      domCard.style.setProperty('--end-y-top', 'var(--lower-y-top)');
+      domCard.style.setProperty('--end-y-bottom', 'var(--lower-y-bottom)');
       domCard.style.setProperty('--end-deg', 'var(--down-end-deg)');
       break;
 
-    case Directions.up:
+    case Direction.up:
       domBackground.style.setProperty('--y-top', 'var(--upper-y-top)');
       domBackground.style.setProperty('--y-bottom', 'var(--upper-y-bottom)');
-      domWrapper.style.setProperty('--start-y-top', 'var(--lower-y-top)');
-      domWrapper.style.setProperty('--start-y-bottom', 'var(--lower-y-bottom)');
-      domWrapper.style.setProperty('--end-y-top', 'var(--upper-y-top)');
-      domWrapper.style.setProperty('--end-y-bottom', 'var(--upper-y-bottom)');
+      domCard.style.setProperty('--start-y-top', 'var(--lower-y-top)');
+      domCard.style.setProperty('--start-y-bottom', 'var(--lower-y-bottom)');
+      domCard.style.setProperty('--end-y-top', 'var(--upper-y-top)');
+      domCard.style.setProperty('--end-y-bottom', 'var(--upper-y-bottom)');
       domCard.style.setProperty('--end-deg', 'var(--up-end-deg)');
       break;
   }
 
-  domWrapper.style.setProperty('--duration', `${durationSec}s`);
+  domCard.style.setProperty('--duration', `${durationSec}s`);
   domNextCard.removeAttribute('slot');
   domNext.append(domNextCard);
   domCard.append(domNext);
-  domWrapper.append(domCard);
 
-  if (lastCard) {
-    const domLast = createTempCard({ style: lastCardStyle });
-    const domLastCard = Flip.cloneCard(lastCard);
+  if (lastCardNode) {
+    const domLast = createTempNode({ style: getLastCardStyle(this) });
+    const domLastCard = Flip.cloneCard(lastCardNode);
 
     domLastCard.removeAttribute('slot');
     domLast.append(domLastCard);
@@ -138,15 +137,15 @@ function flippingVertically(
   }
 
   return new Promise((resolve) => {
-    tempCard.addEventListener(
+    tempCardNode.addEventListener(
       'animationend',
       () => {
         resolve(undefined);
       },
       { once: true },
     );
-    tempCard.append(domBackground);
-    tempCard.append(domWrapper);
+    tempCardNode.append(domBackground);
+    tempCardNode.append(domCard);
   });
 }
 

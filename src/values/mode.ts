@@ -1,6 +1,6 @@
-enum Modes {
+enum Mode {
   loop = 'loop',
   random = 'random',
 }
 
-export default Modes;
+export default Mode;

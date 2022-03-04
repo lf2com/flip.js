@@ -1,24 +1,36 @@
 import flip, { FlipOptions } from './methods/flip';
 import flipAnimation from './methods/flip/flipAnimation';
+import getCardIndex from './methods/getCardIndex';
 import getCardInfo from './methods/getCardInfo';
-import getNextIndex from './methods/getNextIndex';
+import getCardNode from './methods/getCardNode';
+import getCardValue from './methods/getCardValue';
+import getNextCardIndex from './methods/getNextCardIndex';
+import cloneCard from './utils/cloneCard';
 import registerElement from './utils/registerElement';
-import Attributes from './values/attributes';
-import Directions from './values/directions';
-import Modes from './values/modes';
-import Slots from './values/slots';
-import Styles from './values/styles';
+import Attribute from './values/attribute';
+import Direction from './values/direction';
+import Event from './values/event';
+import Mode from './values/mode';
+import Slot from './values/slot';
 
 const nodeName = 'flip-pack';
 
 const { isNaN } = globalThis;
 const template = document.createElement('template');
 
+export const defaultAttributeValues = {
+  [Attribute.mode]: Mode.loop,
+  [Attribute.direct]: false,
+  [Attribute.duration]: 400,
+  [Attribute.direction]: Direction.down,
+  [Attribute.index]: -1,
+  [Attribute.minFlips]: 0,
+  [Attribute.maxFlips]: Infinity,
+};
+
 template.innerHTML = `
   <style>
     :host {
-      --3d-perspective: 10rem;
-
       position: relative;
       display: inline-block;
     }
@@ -34,8 +46,8 @@ template.innerHTML = `
   </style>
   <flip>
     <slot></slot>
-    <slot name="${Slots.current}"></slot>
-    <slot name="${Slots.temp}"></slot>
+    <slot name="${Slot.current}"></slot>
+    <slot name="${Slot.temp}"></slot>
   </flip>
 `;
 
@@ -48,23 +60,9 @@ export interface FlippingOption {
 }
 
 class Flip extends HTMLElement {
-  #mode: Modes = Modes.loop;
+  protected cardsCatch: HTMLElement[] = [];
 
-  #duration: number = 400;
-
-  #direction: Directions = Directions.down;
-
-  #index: number = -1;
-
-  #cards: HTMLElement[] = Array.from(this.children) as HTMLElement[];
-
-  #minFlips: number = 0;
-
-  #maxFlips: number | undefined;
-
-  #perspective: string = '10rem';
-
-  #rootElement: HTMLElement;
+  protected rootElement: HTMLElement;
 
   constructor() {
     super();
@@ -72,145 +70,103 @@ class Flip extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: 'open' });
 
     shadowRoot.append(template.content.cloneNode(true));
-    this.#rootElement = shadowRoot.querySelector('flip') as HTMLElement;
+    this.rootElement = shadowRoot.querySelector('flip') as HTMLElement;
     (shadowRoot.querySelector('slot:not([name])') as HTMLSlotElement)
       .addEventListener('slotchange', () => {
-        this.#cards = Array.from(
+        this.cardsCatch = Array.from(
           this.querySelectorAll(':scope > :not([slot=temp])'),
         );
-      });
-    Flip.observedAttributes
-      .filter((attrName) => this.hasAttribute(attrName))
-      .forEach((attrName) => {
-        this.attributeChangedCallback(attrName);
-      });
 
-    if (this.index === -1) {
-      this.index = 0;
-    }
+        const { index, cardsCatch } = this;
+
+        if (index === -1 || index >= cardsCatch.length) {
+          this.index = cardsCatch.length > 0 ? 0 : -1;
+        }
+      });
   }
 
-  static get observedAttributes() {
-    return [
-      Attributes.index,
-      Attributes.value,
-      Attributes.mode,
-      Attributes.duration,
-      Attributes.direction,
-      Attributes.minFlips,
-      Attributes.maxFlips,
-      Attributes.perspective,
-    ];
+  static get DIRECTION() {
+    return { ...Direction };
   }
 
-  attributeChangedCallback(attrName: string) {
-    switch (attrName) {
-      default:
-        break;
+  static get MODE() {
+    return { ...Mode };
+  }
 
-      case Attributes.index: {
-        const index = this.getAttribute(Attributes.index);
-
-        if (index !== null && index.length > 0) {
-          this.index = Number(index);
-        }
-        break;
-      }
-
-      case Attributes.value: {
-        const value = this.getAttribute(Attributes.value);
-        const index = this.cards.findIndex((card) => (
-          Flip.getCardValue(card) === value
-        ));
-
-        this.index = index;
-        break;
-      }
-
-      case Attributes.mode:
-        if (this.hasAttribute(Attributes.mode)) {
-          this.mode = this.getAttribute(Attributes.mode) as Modes;
-        }
-        break;
-
-      case Attributes.duration: {
-        const duration = this.getAttribute(Attributes.duration);
-
-        if (duration !== null && duration.length > 0) {
-          this.duration = Number(duration);
-        }
-        break;
-      }
-
-      case Attributes.direction:
-        if (this.hasAttribute(Attributes.direction)) {
-          this.direction = this.getAttribute(Attributes.direction) as Directions;
-        }
-        break;
-
-      case Attributes.minFlips: {
-        const minFlips = this.getAttribute(Attributes.minFlips);
-
-        if (minFlips !== null && minFlips.length > 0) {
-          this.minFlips = Number(minFlips);
-        }
-        break;
-      }
-
-      case Attributes.maxFlips: {
-        const maxFlips = this.getAttribute(Attributes.maxFlips);
-
-        if (maxFlips !== null && maxFlips.length > 0) {
-          this.maxFlips = Number(maxFlips);
-        }
-        break;
-      }
-
-      case Attributes.perspective:
-        if (this.hasAttribute(Attributes.perspective)) {
-          this.perspective = this.getAttribute(Attributes.perspective) as string;
-        }
-        break;
-    }
+  static get EVENT() {
+    return { ...Event };
   }
 
   /**
-   * Returns the value of card.
+   * Returns cloned card node.
+   */
+  static cloneCard = cloneCard
+
+  /**
+   * Returns value of card node.
    */
   static getCardValue(card: HTMLElement | null): string | null {
-    return card?.getAttribute?.(Attributes.value) ?? null;
+    return card?.getAttribute?.(Attribute.value) ?? null;
   }
 
   /**
    * Returns card elements.
    */
   get cards(): HTMLElement[] {
-    return [...this.#cards];
+    return [...this.cardsCatch];
   }
 
   /**
    * Returns flipping mode.
    */
-  get mode(): Modes {
-    return this.#mode;
+  get mode(): Mode {
+    const mode = this.getAttribute(Attribute.mode) as Mode;
+
+    return (mode === null || !Object.values(Mode).includes(mode)
+      ? defaultAttributeValues[Attribute.mode]
+      : mode
+    );
   }
 
   /**
    * Sets flipping mode.
    */
-  set mode(mode: Modes) {
-    if (!(mode in Modes)) {
+  set mode(mode: Mode) {
+    if (!Object.values(Mode).includes(mode)) {
       throw new TypeError(`Invalid mode: ${mode}`);
     }
 
-    this.#mode = mode;
+    this.setAttribute(Attribute.mode, mode);
+  }
+
+  /**
+   * Returns directly flipping.
+   */
+  get direct(): boolean {
+    return this.getAttribute(Attribute.direct) !== null;
+  }
+
+  /**
+   * Sets directly flipping.
+   */
+  set direct(direct: boolean) {
+    if (direct) {
+      this.setAttribute(Attribute.direct, '');
+    } else {
+      this.removeAttribute(Attribute.direct);
+    }
   }
 
   /**
    * Returns flipping duration.
    */
   get duration(): number {
-    return this.#duration;
+    const duration = this.getAttribute(Attribute.duration);
+
+    return (duration === null || duration.length === 0
+      ? defaultAttributeValues[Attribute.duration]
+      : Number(duration)
+    );
   }
 
   /**
@@ -220,35 +176,45 @@ class Flip extends HTMLElement {
     if (isNaN(duration)) {
       throw new TypeError(`Invalid duration: ${duration}`);
     } else if (duration < 0) {
-      throw new RangeError(`Duration should be greater than 0: ${duration}`);
+      throw new RangeError(`Duration should not be lesser than 0: ${duration}`);
     }
 
-    this.#duration = duration;
+    this.setAttribute(Attribute.duration, `${duration}`);
   }
 
   /**
    * Returns flipping direction.
    */
-  get direction(): Directions {
-    return this.#direction;
+  get direction(): Direction {
+    const direction = this.getAttribute(Attribute.direction) as Direction;
+
+    return (Object.values(Direction).includes(direction)
+      ? direction
+      : defaultAttributeValues[Attribute.direction]
+    );
   }
 
   /**
    * Sets flipping direction.
    */
-  set direction(direction: Directions) {
-    if (!(direction in Directions)) {
+  set direction(direction: Direction) {
+    if (!Object.values(Direction).includes(direction)) {
       throw new TypeError(`Invalid direction: ${direction}`);
     }
 
-    this.#direction = direction;
+    this.setAttribute(Attribute.direction, direction);
   }
 
   /**
    * Returns min flips.
    */
   get minFlips(): number {
-    return this.#minFlips;
+    const minFlips = this.getAttribute(Attribute.minFlips);
+
+    return (minFlips === null || minFlips.length === 0
+      ? defaultAttributeValues[Attribute.minFlips]
+      : Number(minFlips)
+    );
   }
 
   /**
@@ -259,9 +225,11 @@ class Flip extends HTMLElement {
       throw new TypeError(`Invalid min flips: ${minFlips}`);
     } else if (parseInt(`${minFlips}`, 10) !== minFlips) {
       throw new TypeError(`Min flips should be an integer: ${minFlips}`);
+    } else if (minFlips < 0) {
+      throw new RangeError(`Min flips should not be lesser than 0: ${minFlips}`);
     }
 
-    this.#minFlips = minFlips;
+    this.setAttribute(Attribute.minFlips, `${minFlips}`);
 
     if (this.maxFlips < minFlips) {
       throw new RangeError(
@@ -274,7 +242,12 @@ class Flip extends HTMLElement {
    * Returns max flips.
    */
   get maxFlips(): number {
-    return this.#maxFlips ?? Infinity;
+    const maxFlips = this.getAttribute(Attribute.maxFlips);
+
+    return (maxFlips === null || maxFlips.length === 0
+      ? defaultAttributeValues[Attribute.maxFlips]
+      : Number(maxFlips)
+    );
   }
 
   /**
@@ -285,9 +258,11 @@ class Flip extends HTMLElement {
       throw new TypeError(`Invalid max flips: ${maxFlips}`);
     } else if (parseInt(`${maxFlips}`, 10) !== maxFlips) {
       throw new TypeError(`Max flips should be an integer: ${maxFlips}`);
+    } else if (maxFlips < 0) {
+      throw new RangeError(`Max flips should not be lesser than 0: ${maxFlips}`);
     }
 
-    this.#maxFlips = maxFlips;
+    this.setAttribute(Attribute.maxFlips, `${maxFlips}`);
 
     if (this.minFlips > maxFlips) {
       throw new RangeError(
@@ -300,16 +275,24 @@ class Flip extends HTMLElement {
    * Returns 3D perspective value.
    */
   get perspective(): string {
-    return this.#perspective;
+    const perspective = this.getAttribute(Attribute.perspective);
+
+    if (perspective !== null) {
+      return perspective;
+    }
+
+    const { clientWidth, clientHeight } = this;
+    const size = 2 * Math.max(clientWidth, clientHeight);
+
+    return `${size}px`;
   }
 
   /**
    * Sets 3D perspective value.
    */
   set perspective(perspective: string) {
-    if (typeof perspective === 'string') {
-      this.#perspective = perspective;
-      this.#rootElement.style.setProperty(Styles.perspective, perspective);
+    if (typeof perspective === 'string' && perspective.length > 0) {
+      this.setAttribute(Attribute.perspective, perspective);
     }
   }
 
@@ -317,7 +300,13 @@ class Flip extends HTMLElement {
    * Returns current index.
    */
   get index(): number {
-    return this.#index;
+    const index = this.getAttribute(Attribute.index);
+
+    if (index === null || index.length === 0) {
+      return defaultAttributeValues[Attribute.index];
+    }
+
+    return Number(index) % this.cards.length;
   }
 
   /**
@@ -328,187 +317,137 @@ class Flip extends HTMLElement {
       throw new TypeError(`Invalid index: ${index}`);
     } else if (parseInt(`${index}`, 10) !== index) {
       throw new TypeError(`Index should be an integer: ${index}`);
-    } else if (this.cards[index] === undefined) {
-      throw new RangeError(`Card index doesn't exist: ${index}`);
     }
 
-    this.#index = index;
-    this.querySelectorAll(`[slot="${Slots.current}"]`).forEach((card) => {
-      card.removeAttribute('slot');
-    });
-    this.cards[index].setAttribute('slot', Slots.current);
+    const { cardsCatch } = this;
+    const cardInfo = this.getCardInfo(index);
+    const {
+      index: cardIndex,
+      value: cardValue,
+      node: cardNode,
+    } = cardInfo;
+
+    if (cardNode === null && cardsCatch.length > 0) {
+      throw new Error(`Illegal index: ${index}`);
+    }
+
+    if (cardIndex !== this.index) {
+      this.querySelectorAll(`[slot="${Slot.current}"]`).forEach((card) => {
+        card.removeAttribute('slot');
+      });
+      cardNode?.setAttribute?.('slot', Slot.current);
+      this.setAttribute(Attribute.index, `${cardIndex}`);
+
+      if (cardValue) {
+        this.setAttribute(Attribute.value, cardValue);
+      } else {
+        this.removeAttribute(Attribute.value);
+      }
+    }
   }
 
   /**
    * Returns current value.
    */
   get value(): string | null {
-    return this.getValueByIndex(this.index);
+    return this.getCardValue(this.index);
   }
 
   /**
    * Sets current value.
    */
   set value(value: string | null) {
-    const index = this.cards.findIndex((dom) => (
-      Flip.getCardValue(dom) === value
-    ));
-
-    if (index === -1) {
-      throw new ReferenceError(`Value is not in cards: ${value}`);
+    if (value !== null && typeof value !== 'string') {
+      throw new TypeError(`Invalid value: ${value}`);
     }
 
-    this.index = index;
+    this.index = this.getCardIndex(value as string);
   }
 
   /**
    * Returns current card.
    */
   get card(): HTMLElement | null {
-    return this.getCardByIndex(this.index);
+    return this.getCardNode(this.index);
   }
 
   /**
    * Sets current card.
    */
   set card(card: HTMLElement | null) {
-    if (card === null) {
-      this.index = -1;
-    } else {
-      this.index = this.cards.indexOf(card);
-    }
+    this.index = this.getCardIndex(card as HTMLElement);
   }
 
   /**
-   * Returns the nth card by index.
+   * Returns card node.
    */
-  getCardByIndex(index: number): HTMLElement | null {
-    return this.cards[index] ?? null;
-  }
+  getCardNode = getCardNode
 
   /**
-   * Returns card info with index and card element.
+   * Returns card index.
+   */
+  getCardIndex = getCardIndex
+
+  /**
+   * Returns card value.
+   */
+  getCardValue = getCardValue
+
+  /**
+   * Returns card info.
    */
   getCardInfo = getCardInfo
 
   /**
-   * Returns the value of nth card by index.
+   * Returns the index of next card.
    */
-  getValueByIndex(index: number): string | null {
-    return Flip.getCardValue(this.getCardByIndex(index));
+  getNextCardIndex = getNextCardIndex
+
+  /**
+   * Returns the node of next card.
+   */
+  getNextCardNode(...args: Parameters<Flip['getNextCardIndex']>): ReturnType<Flip['getCardNode']> {
+    const nextIndex = this.getNextCardIndex(...args);
+
+    return this.getCardNode(nextIndex);
   }
 
   /**
-   * Returns the index of card.
+   * Returns the value of next card.
    */
-  getIndexByCard(card: HTMLElement): number {
-    return this.cards.indexOf(card);
+  getNextCardValue(...args: Parameters<Flip['getNextCardIndex']>): ReturnType<Flip['getCardValue']> {
+    const nextIndex = this.getNextCardIndex(...args);
+
+    return this.getCardValue(nextIndex);
   }
 
   /**
-   * Returns the index of the first card matches of value.
+   * Returns the info of next card.
    */
-  getIndexByValue(value: string): number {
-    return this.cards.findIndex((card) => (
-      Flip.getCardValue(card) === value
-    ));
+  getNextCardInfo(...args: Parameters<Flip['getNextCardIndex']>): ReturnType<Flip['getCardInfo']> {
+    const nextIndex = this.getNextCardIndex(...args);
+
+    return this.getCardInfo(nextIndex);
   }
 
   /**
-   * Returns the next card index.
+   * Flips to card by reference.
    */
-  getNextIndex = getNextIndex
+  flip(
+    source: number | string | HTMLElement,
+    options?: FlipOptions,
+  ): ReturnType<typeof flip>
 
-  /**
-   * Returns the next card.
-   */
-  getNextCard(
-    ...args: Parameters<Flip['getNextIndex']>
-  ): HTMLElement | null {
-    const nextIndex = this.getNextIndex(...args);
+  flip(options?: FlipOptions): ReturnType<typeof flip>
 
-    return (nextIndex !== null
-      ? this.getCardByIndex(nextIndex)
-      : null
-    );
-  }
-
-  /**
-   * Flips to specific card/index.
-   */
-  flip = flip
-
-  /**
-   * Alias of .flip(...).
-   */
-  flipToCard(card: HTMLElement, options?: FlipOptions) {
-    return this.flip(card, options);
-  }
-
-  /**
-   * Flips to the nth card by index.
-   */
-  flipToIndex(index: number, options?: FlipOptions) {
-    return this.flip(this.getCardByIndex(index), options);
-  }
-
-  /**
-   * Flips to specific card/index Directly.
-   */
-  flipDirectly(...[next, options]: Parameters<Flip['flip']>) {
-    return this.flip(next, {
-      ...options,
-      direct: true,
-    });
-  }
-
-  /**
-   * Alias of .flipDirectly(...).
-   */
-  flipToCardDirectly(card: HTMLElement, options?: FlipOptions) {
-    return this.flipDirectly(card, options);
-  }
-
-  /**
-   * Flips directly to the nth card by index.
-   */
-  flipToIndexDirectly(index: number, options?: FlipOptions) {
-    return this.flipDirectly(this.getCardByIndex(index), options);
+  flip(...args: Parameters<typeof flip>) {
+    return flip.call(this, ...args);
   }
 
   /**
    * Does flipping animation from last card to next card.
    */
   flipAnimation = flipAnimation
-
-  /**
-   * Returns cloned element of card.
-   *
-   * TODO: clone style?
-   */
-  static cloneCard(card: HTMLElement): HTMLElement {
-    const newCard = card.cloneNode(true) as HTMLElement;
-
-    { // case of canvas
-      const newCardCanvases = Array.from(newCard.querySelectorAll('canvas'));
-
-      if (newCard instanceof HTMLCanvasElement) {
-        newCardCanvases.push(newCard);
-      }
-      if (newCardCanvases.length > 0) {
-        card.querySelectorAll('canvas').forEach((dom, domIndex) => {
-          const cardCanvas = dom as HTMLCanvasElement;
-          const newCanvas = newCardCanvases[domIndex] as HTMLCanvasElement;
-
-          newCanvas.width = cardCanvas.width;
-          newCanvas.height = cardCanvas.height;
-          newCanvas.getContext('2d')?.drawImage(cardCanvas, 0, 0);
-        });
-      }
-    }
-
-    return newCard;
-  }
 }
 
 registerElement(Flip, nodeName);

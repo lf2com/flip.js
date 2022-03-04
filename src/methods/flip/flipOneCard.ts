@@ -1,72 +1,77 @@
 import { FlipOptions } from '.';
-import Flip from '../..';
-import createTempCard from '../../utils/createTempCard';
+import Flip from '../../flip';
+import createTempNode from '../../utils/createTempNode';
 import { triggerEvent } from '../../utils/eventHandler';
-import ClassNames from '../../values/classNames';
-import Events from '../../values/events';
-import Slots from '../../values/slots';
-import flipAnimation, { FlipAnimationOption } from './flipAnimation';
+import ClassName from '../../values/className';
+import Event from '../../values/event';
+import Slot from '../../values/slot';
+import { CardInfo } from '../getCardInfo';
+import { FlipAnimationOption } from './flipAnimation';
 
 export interface FlipOneCardOptions extends Required<FlipOptions> {
-  lastIndex: number;
-  lastCard: HTMLElement | null;
-  nextIndex: number;
-  nextCard: HTMLElement;
+  lastCardInfo: CardInfo;
+  nextCardInfo: CardInfo;
 }
 
+/**
+ * Flips card once.
+ */
 async function flipOneCard(
   this: Flip,
   options: FlipOneCardOptions,
 ): Promise<void> {
-  const { nextIndex } = options;
-  const tempCard = await createTempCard({
-    className: ClassNames.temp,
-    slot: Slots.temp,
+  const { nextCardInfo } = options;
+  const {
+    index: nextIndex,
+  } = nextCardInfo;
+  const tempCardNode = createTempNode({
+    className: ClassName.temp,
+    slot: Slot.temp,
   });
-  const lastTempCard = this.querySelector(`.${ClassNames.temp}`);
+  const lastTempCard = this.querySelector(`.${ClassName.temp}`);
 
   if (lastTempCard) {
     lastTempCard.remove();
   }
 
   this.index = nextIndex;
-  this.append(tempCard);
+  this.append(tempCardNode);
 
-  const cardStartEventPassed = triggerEvent<FlipAnimationOption>(
+  const passFlipCardStartEvent = triggerEvent<FlipAnimationOption>(
     this,
-    Events.flipCardStart,
+    Event.flipCardStart,
     {
       bubbles: true,
       cancelable: true,
       composed: true,
       detail: {
         ...options,
-        tempCard,
+        tempCardNode,
       },
     },
   );
 
-  if (cardStartEventPassed) {
-    await flipAnimation.call(this, {
+  if (passFlipCardStartEvent) {
+    await this.flipAnimation({
       ...options,
-      tempCard,
+      tempCardNode,
     });
   }
 
   triggerEvent<FlipAnimationOption>(
     this,
-    Events.flipCardEnd,
+    Event.flipCardEnd,
     {
       bubbles: true,
       cancelable: false,
       composed: true,
       detail: {
         ...options,
-        tempCard,
+        tempCardNode,
       },
     },
   );
-  tempCard.remove();
+  tempCardNode.remove();
 }
 
 export default flipOneCard;

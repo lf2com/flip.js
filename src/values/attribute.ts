@@ -1,7 +1,8 @@
-enum Attributes {
+enum Attribute {
   index = 'index',
   value = 'value',
   mode = 'mode',
+  direct = 'direct',
   duration = 'duration',
   direction = 'direction',
   minFlips = 'min-flips',
@@ -9,4 +10,4 @@ enum Attributes {
   perspective = 'perspective',
 }
 
-export default Attributes;
+export default Attribute;

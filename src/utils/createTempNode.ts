@@ -5,7 +5,7 @@ const tempCardCss = `
     right: 0;
     bottom: 0;
     left: 0;
-    pointer-events: none;
+    /*pointer-events: none;*/
     display: block;
   }
 
@@ -14,27 +14,29 @@ const tempCardCss = `
   }
 `;
 
-interface TempCardOptions {
+interface TempNodeOptions {
   className?: string;
   slot?: string;
   style?: string;
+  attributes?: Record<string, string>;
   innerHTML?: string;
 }
 
 /**
- * Returns a temp card.
+ * Returns a temp node.
  */
-function createTempCard(
-  options: TempCardOptions = {},
+function createTempNode(
+  options: TempNodeOptions = {},
 ): HTMLElement {
   const {
     className,
     slot,
     style = '',
+    attributes = {},
     innerHTML = '<slot></slot>',
   } = options;
-  const tempCard = document.createElement('div');
-  const shadowRoot = tempCard.attachShadow({ mode: 'open' });
+  const tempNode = document.createElement('div');
+  const shadowRoot = tempNode.attachShadow({ mode: 'open' });
 
   shadowRoot.innerHTML = `
     <style>
@@ -45,13 +47,17 @@ function createTempCard(
   `;
 
   if (className !== undefined) {
-    tempCard.classList.add(className);
+    tempNode.classList.add(className);
   }
   if (slot !== undefined) {
-    tempCard.setAttribute('slot', slot);
+    tempNode.setAttribute('slot', slot);
   }
 
-  return tempCard;
+  Object.keys(attributes).forEach((key) => {
+    tempNode.setAttribute(key, attributes[key]);
+  });
+
+  return tempNode;
 }
 
-export default createTempCard;
+export default createTempNode;

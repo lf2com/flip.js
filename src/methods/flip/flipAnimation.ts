@@ -1,11 +1,11 @@
 import Flip from '../../flip';
-import Directions from '../../values/directions';
+import Direction from '../../values/direction';
 import { FlipOneCardOptions } from './flipOneCard';
 import flippingHorizontally from './horizontal';
 import flippingVertically from './vertical';
 
-export interface FlipAnimationOption extends FlipOneCardOptions {
-  tempCard: HTMLElement;
+export interface FlipAnimationOption extends Required<FlipOneCardOptions> {
+  tempCardNode: HTMLElement;
 }
 
 /**
@@ -15,19 +15,18 @@ async function flipAnimation(
   this: Flip,
   options: FlipAnimationOption,
 ): Promise<void> {
-  switch (options.direction) {
-    default:
-      return flippingVertically.call(this, {
-        ...options,
-        direction: Directions.down,
-      });
+  const { direction } = options;
 
-    case Directions.up:
-    case Directions.down:
+  switch (direction) {
+    default:
+      throw new TypeError(`Invalid direction: ${direction}`);
+
+    case Direction.up:
+    case Direction.down:
       return flippingVertically.call(this, options);
 
-    case Directions.right:
-    case Directions.left:
+    case Direction.right:
+    case Direction.left:
       return flippingHorizontally.call(this, options);
   }
 }
