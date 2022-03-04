@@ -16,6 +16,8 @@ body {
 }
 
 #flip {
+  --size: 50vmin;
+
   position: relative;
   margin: 1em;
   box-shadow: 0 0 0.5em #999;
@@ -24,8 +26,8 @@ body {
 
   .card {
     position: relative;
-    width: 70vmin;
-    height: 70vmin;
+    width: var(--size);
+    height: var(--size);
     box-sizing: border-box;
     border-radius: 0.5em;
     border: 1em solid rgba(50, 20, 0, 0.5);

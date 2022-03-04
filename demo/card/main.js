@@ -1,12 +1,12 @@
 (() => {
-  const domCard = document.getElementById('flip');
+  window.addEventListener('ready', () => {
+    const domCard = document.getElementById('flip');
 
-  async function flipCard() {
-    await domCard.flip();
-    flipCard();
-  }
+    async function flipCard() {
+      await domCard.flip();
+      flipCard();
+    }
 
-  window.addEventListener('load', () => {
     flipCard();
   });
 })();

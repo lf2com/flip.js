@@ -4,21 +4,58 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
     <title>Flip.js Demo</title>
-    <link href="/demo/style.scss" type="text/scss" rel="stylesheet" />
-    <script src="/demo/scss.js"></script>
+    <link href="./style.css" type="text/css" rel="stylesheet" />
   </head>
   <body>
-    <div class="item">
-      <a href="/demo/flip/">Flip</a>
-      <p>Sets flip properties of duration, direction, and mode.</p>
-    </div>
-    <div class="item">
-      <a href="/demo/list/">List</a>
-      <p>Flips items of list, you can arrange, add, and remove items.</p>
-    </div>
-    <div class="item">
-      <a href="/demo/card/">Card</a>
-      <p>Flips cards with images.</p>
-    </div>
   </body>
+  <script>
+    (() => {
+      const items = [
+        {
+          name: 'Flip',
+          path: './flip/',
+          desc: 'Sets flip properties of duration, direction, and mode',
+        },
+        {
+          name: 'List',
+          path: './list/',
+          desc: 'Flips items of list, you can arrange, add, and remove items',
+        },
+        {
+          name: 'Card',
+          path: './card/',
+          desc: 'Flips cards with images',
+        },
+      ];
+      const addItem = (item, className = '') => {
+        const { name, path, desc } = item;
+        const domItem = document.createElement('div');
+        const domName = document.createElement('a');
+        const domDesc = document.createElement('p');
+
+        if (className.length > 0) {
+          domItem.classList.add(className);
+        }
+
+        domItem.classList.add('item');
+        domName.href = path;
+        domName.innerText = name;
+        domDesc.innerText = desc;
+        domItem.append(domName);
+        domItem.append(domDesc);
+        document.body.append(domItem);
+      };
+
+      items.forEach((item) => {
+        const {
+          children = [],
+        } = item;
+        
+        addItem(item);
+        children.forEach((child) => {
+          addItem(child, 'sub');
+        });
+      });
+    })();
+  </script>
 </html>
