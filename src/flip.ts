@@ -102,10 +102,31 @@ class Flip extends HTMLElement {
     return { ...Event };
   }
 
-  /**
-   * Returns cloned card node.
-   */
-  static cloneCard = cloneCard
+  static get observedAttributes() {
+    return [
+      Attribute.index,
+      Attribute.value,
+    ];
+  }
+
+  attributeChangedCallback(attributeName: Attribute) {
+    switch (attributeName) {
+      default:
+        break;
+
+      case Attribute.index:
+        if (this.hasAttribute(Attribute.index)) {
+          this.index = Number(this.getAttribute(Attribute.index));
+        }
+        break;
+
+      case Attribute.value:
+        if (this.hasAttribute(Attribute.value)) {
+          this.value = this.getAttribute(Attribute.value);
+        }
+        break;
+    }
+  }
 
   /**
    * Returns value of candidate node.
@@ -422,7 +443,7 @@ class Flip extends HTMLElement {
    * Flips to candidate by reference.
    */
   flip(
-    source: number | string | HTMLElement,
+    source?: number | string | HTMLElement,
     options?: FlipOptions,
   ): ReturnType<typeof flip>
 
@@ -435,7 +456,7 @@ class Flip extends HTMLElement {
   /**
    * Does flipping animation from last candidate to next candidate.
    */
-  flipAnimation = flipAnimation
+  protected flipAnimation = flipAnimation
 }
 
 registerElement(Flip, nodeName);
