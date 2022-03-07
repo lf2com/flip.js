@@ -11,9 +11,7 @@
         return;
       }
 
-      await domFlip.flip({
-        direct: true,
-      });
+      await domFlip.flip();
       setTimeout(async () => {
         autoFlip();
       }, 1000);
