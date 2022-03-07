@@ -27,7 +27,7 @@ body {
   .candidate {
     padding: 1em;
     border-radius: 0.5em;
-    background: #cef;
+    background: #eee;
     font-weight: bold;
   }
 
@@ -37,6 +37,7 @@ body {
     position: absolute;
     background-color: var(--axis-color);
     display: block;
+    pointer-events: none;
     z-index: 1;
   }
   

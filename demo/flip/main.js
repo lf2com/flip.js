@@ -40,6 +40,13 @@
         });
       });
 
+    // checks auto flipping
+    domAutoFlip.addEventListener('change', function onChange() {
+      if (this.checked) {
+        autoFlip();
+      }
+    });
+
     // initializes flip
     domFlip.duration = domDuration.value;
     domFlip.direction = domDirection.querySelector('input[type=radio][checked]').value;

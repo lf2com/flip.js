@@ -49,17 +49,15 @@ body {
   &::before {
     content: '';
     position: absolute;
-    background-color: var(--axis-color);
-    display: block;
-    z-index: 1;
-  }
-  
-  &::before {
     transform: translateY(-50%);
     top: 50%;
     right: 0;
     left: 0;
     height: var(--axis-size);
+    background-color: var(--axis-color);
+    display: block;
+    pointer-events: none;
+    z-index: 1;
   }
 }
 
