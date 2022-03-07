@@ -1,12 +1,14 @@
 # flip.js
 
-Flip.js is an element for flipping effect for wrapped elements.
+Flip.js is an HTML element for flipping child nodes.
+
+---
 
 ## Demo
 
 [url-demo-flip]: https://lf2com.github.io/flip.js/demo/flip
 [url-demo-list]: https://lf2com.github.io/flip.js/demo/list
-[url-demo-card]: https://lf2com.github.io/flip.js/demo/card
+[url-demo-canvas]: https://lf2com.github.io/flip.js/demo/canvas
 
 [Flip][url-demo-flip]
 
@@ -20,123 +22,180 @@ Flips items of list, you can arrange, add, and remove items.
 
 ![List](./demo/list/demo.gif)
 
-[Card][url-demo-card]
+[Canvas][url-demo-canvas]
 
-Flips cards with images.
+Flips canvas candidates.
 
-![Card](./demo/card/demo.gif)
+![Canvas](./demo/canvas/demo.gif)
 
-## Usage
-
-Install from [GitHub](https://github.com/lf2com/flip.js) or [npmjs](https://www.npmjs.com/package/@lf2com/flip.js):
-
-```sh
-npm install @lf2com/flip.js
-# or
-npm install https://github.com/lf2com/flip.js
-```
-
-Import to your project:
-
-```js
-import '@lf2com/flip.js';
-// or
-require('@lf2com/flip.js');
-```
-
-### Browser
-
-Add the script file to your HTML file:
+## Get Started
 
 ```html
-<script src="PATH/TO/flip.js" defer></script>
+<script defer src="https://unpkg.com/@lf2com/flip.js@latest/dist/flip.min.js"></script>
+<!-- or -->
+<script defer src="https://cdn.jsdelivr.net/gh/lf2com/flip.js@latest/dist/flip.min.js"></script>
+```
 
-<!-- create flip -->
-<flip-pack direction="down">
-  <div class="card">1</div>
-  <div class="card">2</div>
-  <div class="card">3</div>
-  <div class="card">4</div>
-  <div class="card">5</div>
+Use flip in HTML:
+
+```html
+<flip-pack direction="down" mode="random">
+  <div class="candidate">1</div>
+  <div class="candidate">2</div>
+  <div class="candidate">3</div>
+  <div class="candidate">4</div>
+  <div class="candidate">5</div>
 </flip-pack>
+```
 
-<!-- or create flip by JS -->
-<script>
+Or in JavaScript code:
+
+```js
   const flip = document.createElement('flip-pack');
-  flip.direction = 'down'; // or flip.setAttribute('direction', 'down');
 
-  // or if you are using jQuery
-  const $flip = $('<flip-pack>').attr({
+  flip.setAttribute('direction', 'down');
+  flip.setAttribute('mode', 'random');
+  // or
+  flip.direction = 'down';
+  flip.mode = 'random';
+
+  for (let i = 0; i < 5; i += 1) {
+    const candidate = document.createElement('div');
+
+    candidate.classList.add('candidate');
+    candidate.innerText = `${i + 1}`;
+    flip.append(candidate);
+  }
+
+  document.body.append(flip);
+```
+
+As flip.js is an element, we can code in jQuery:
+
+```jq
+$('<flip-pack>')
+  .attr({
     direction: 'down',
-  });
+    mode: 'random',
+  })
+  .append(new Array(5)
+    .fill(0)
+    .map((_, i) => (
+      $('<div>')
+        .addClass('candidate')
+        .html(`${i + 1}`)
+    ))
+  )
+  .appendTo($('body'));
 </script>
 ```
 
-### Styling Card Members
+Or in React:
 
-We need to define and style the cards in the flip element so that every card can be displayed and flipped rightly by flip.js. There are some rules we need to follow to prevent from issues of flipping animation.
+```jsx
+const Flip = () => (
+  <flip-pack
+    direction="down"
+    mode="random"
+  >
+    {(new Array(5)
+      .fill(0)
+      .map((_, i) => (
+        <div key={i} className="candidate">
+          {i + 1}
+        </div>
+      ))
+    )}
+  </flip-pack>
+);
+```
 
-#### Specific Parent Selector
+## Styling Child Nodes
 
-A CSS selector `flip-pack > .card` defines the style of `.card` that belongs to the parent node `flip-pack`, which causes the cloned card element for flipping animation reference to no styles. Instead, use `flip-pack .card` in replacement.
+> :warning: _**On flipping, we clone the last and next candidate children for displaying flipping animation. So if the child nodes are styled by CSS, we need to let the cloned nodes styled as the same so that them can be displayed correctly. As a result, there are some rules for preventing from issues of flipping animation.**_
+
+### Specific Selector of Parent
+
+Selectors such as `flip-pack > {selector}` define those styles directly belong to `flip-pack`, causing missing the styles of cloned elements. It is recommended to use `flip-pack.some-class {selector}` instead.
+
+```css
+/*
+ * [DO NOT USE]: flip-pack > {selector}
+ */
+flip-pack > .candidate {
+  width: 100px;
+  height: 150px;
+  border-radius: 10px;
+  background: #eee;
+  font-size: 30px;
+  color: #000;
+}
+
+/*
+ * [BETTER TO USE]: flip-pack {selector}
+ */
+flip-pack.candidate-set-1 .candidate {
+  width: 100px;
+  height: 150px;
+  border-radius: 10px;
+  background: #eee;
+  font-size: 30px;
+  color: #000;
+}
+```
 
 ```html
-<style>
-  /* Do NOT use:
-   * flip-pack > .card
-   */
-  flip-pack .card {
-    width: 100px;
-    height: 150px;
-    border-radius: 10px;
-    background: #eee;
-    font-size: 30px;
-    color: #000;
-  }
-</style>
-
-<flip-pack>
-  <div class="card">A</div>
-  <div class="card">B</div>
-  <div class="card">C</div>
-  <div class="card">D</div>
+<flip-pack class="candidate-set-1">
+  <div class="candidate">A</div>
+  <div class="candidate">B</div>
+  <div class="candidate">C</div>
+  <div class="candidate">D</div>
 </flip-pack>
 ```
 
-#### Nth Child Selector
+### Nth Selector
 
-The CSS selector `:nth-child()` defines the style of nth child of parent node, causing the cloned card element for flipping animation being applied unexpected styles due to the element would be the last child of `flip-pack` and there are cloned card element that would be seen as the first child.
+Selectors specifying the n-th node such as `:nth-child()` cause the cloned element being applied unexpected styles due to the cloned element would be the last child of `flip-pack`. 
+
+```css
+/*
+ * [DO NOT USE]: flip-pack :nth-child()
+ */
+flip-pack .candidate:nth-child(odd) {
+  background: #fee;
+}
+
+/*
+ * [BETTER TO USE]: flip-pack {selector}
+ */
+flip-pack .candidate.odd {
+  background: #fee;
+}
+```
 
 ```html
-<style>
-  flip-pack .card {
-    width: 100px;
-    height: 150px;
-    border-radius: 10px;
-    background: #eee;
-    font-size: 30px;
-    color: #000;
-  }
-
-  /* Do NOT use:
-   * flip-pack .card:nth-child(odd)
-   */
-  flip-pack .card.odd {
-    background: #fee;
-  }
-</style>
-
-<flip-pack>
-  <div class="card odd" value="a">A</div>
-  <div class="card" value="b">B</div>
-  <div class="card odd" value="c">C</div>
-  <div class="card" value="d">D</div>
+<flip-pack id="candidate-pack">
+  <div class="candidate" value="a">A</div>
+  <div class="candidate" value="b">B</div>
+  <div class="candidate" value="c">C</div>
+  <div class="candidate" value="d">D</div>
 </flip-pack>
+```
+
+```js
+document
+  .getElementById('candidate-pack')
+  .querySelectorAll('.candidate')
+  .forEach((candidate, candidateIndex) => {
+    if (candidateIndex % 2 === 0) {
+      candidate.classList.add('odd');
+    }
+  });
 ```
 
 ## Build
 
-Build flip.js by the command:
+Build flip.js with the command:
 
 ```sh
 npm run build
@@ -144,113 +203,150 @@ npm run build
 
 And get the built file at `./dist/flip.min.js`.
 
+## Nodes of Flip.js
+
+Use `<flip-pack>` to wrap those child nodes for flipping:
+
+```html
+<flip-pack>
+  <div value="a">A</div>
+  <div value="b">B</div>
+  <div value="c">C</div>
+  <div value="d">D</div>
+</flip-pack>
+```
+
 ## Properties
 
-We defined serveral properties for setting flip.
+Properties for setting the animation and current status of flip element.
 
-**NOTICE: `flip.getAttribute(...)` won't get the latest value of the attribute. The attribute getter is designed for configuring attribute value with HTML.**
+### .candidates
 
-### .index
-
-Index of current displayed card. Set the value to change the current displayed card without flipping animation.
-
-```html
-<!-- initial index -->
-<flip-pack index="2">
-  <div class="card">A</div>
-  <div class="card">B</div>
-  <div class="card">C</div>
-  <div class="card">D</div>
-</flip-pack>
-```
+> Type of value: _`HTMLElement`_[]
+ 
+Returns the candidate elements that we can flip to.
 
 ```js
-// set initial index
-flip.index = 2;
-// or
-flip.setAttribute('index', 2);
-
-// get index
-console.log('index:', flip.index);
-```
-
-### .card
-
-Current displayed card. Set an element wrapped in the flip to change the current displayed card without flipping.
-
-```js
-// set card
-const domCard = document.createElement('div');
-domCard.classList.add('card');
-domCard.innerHTML = 'E';
-flip.append(domCard);
-flip.card = domCard;
-
-// get card
-console.log('card:', flip.card);
-```
-
-### .value
-
-Value of current displayed card. Set a value of wrapped cards of the flip to change the current displayed card without flipping.
-
-```html
-<!-- set value -->
-<flip-pack value="c">
-  <div class="card" value="a">A</div>
-  <div class="card" value="b">B</div>
-  <div class="card" value="c">C</div>
-  <div class="card" value="d">D</div>
-</flip-pack>
-```
-
-```js
-// set value
-flip.value = 'c';
-
-// get value
-console.log('value:', flip.value);
-```
-
-### .cards
-
-Gets the array of card elements wrapped in the flip element.
-
-```js
-// get cards
-console.log('cards:', flip.cards);
+console.log('Candidates:', flip.candidates);
 ```
 
 ### .mode
 
-Mode of getting the next card and flipping animation. Default is `loop`:
+> Type of value: _`string`_
+>
+> Default: `'loop'`
+
+Mode of picking the next child element to show:
 
 | Name | Description |
 | -: | :- |
-| loop | Pick the next card after the current one |
-| random | Pick card randomly from wrapped cards |
+| loop | Pick the next candidate right after the current one |
+| random | Pick candidate randomly |
 
 ```html
 <!-- set mode -->
 <flip-pack mode="random">
-  <div class="card">A</div>
-  <div class="card">B</div>
-  <div class="card">C</div>
-  <div class="card">D</div>
+  <div>A</div>
+  <div>B</div>
+  <div>C</div>
+  <div>D</div>
 </flip-pack>
+```
+
+```js
+// set mode of picking the next candidate
+flip.mode = 'random';
+// or
+flip.setAttribute('mode', 'random');
+
+// get mode of picking the next candidate
+console.log('Mode:', flip.mode);
+// or
+console.log('Mode:', flip.getAttribute('mode'));
+```
+
+### .duration
+
+> Type of value: _`number`_
+>
+> Default: _`400`_
+
+Duration of animation flipping per candidate in milliseconds.
+
+```html
+<!-- set duration -->
+<flip-pack duration="200">
+  <div>A</div>
+  <div>B</div>
+  <div>C</div>
+  <div>D</div>
+</flip-pack>
+```
+
+```js
+// set duration of animation
+flip.duration = 200;
+// or
+flip.setAttribute('duration', '200');
+
+// get duration in number
+console.log('Duration:', flip.duration);
+// or in string
+console.log('Duration:', flip.getAttribute('duration'));
+```
+
+### .direction
+
+> Type of value: _`string`_
+>
+> Default: _`'down'`_
+
+Direction of flipping candidates:
+
+| Name | Description |
+| -: | :- |
+| down | Flipping down from the top side |
+| up | Flipping up from the bottom side |
+| left | Flipping left from the right side |
+| right | Flipping right from the left side |
+
+```html
+<!-- set direction -->
+<flip-pack direction="left">
+  <div>A</div>
+  <div>B</div>
+  <div>C</div>
+  <div>D</div>
+</flip-pack>
+```
+
+```js
+// set direction
+flip.direction = 'left';
+// or
+flip.setAttribute('direction', 'left');
+
+// get direction
+console.log('Direction:', flip.direction);
+// or
+console.log('Direction:', flip.getAttribute('direction'));
 ```
 
 ### .minFlips/.maxFlips
 
-Minimum or maximum times of flipping on `random` mode.
+> Type of value: _`number`_
+>
+> Default: _`0`_ for `minFlips`; _`Infinity`_ for `maxFlips`
+
+Minimum or maximum times of flipping candidates on `random` mode.
 
 ```html
 <!-- set min/max flips -->
 <flip-pack mode="random" min-flips="5" max-flips="8">
-  <div class="card">A</div>
-  <div class="card">B</div>
-  <div class="card">C</div>
-  <div class="card">D</div>
+  <div>A</div>
+  <div>B</div>
+  <div>C</div>
+  <div>D</div>
 </flip-pack>
 ```
 
@@ -259,230 +355,310 @@ Minimum or maximum times of flipping on `random` mode.
 flip.minFlips = 5;
 flip.maxFlips = 8;
 // or
-flip.setAttribute('min-flips', 5);
-flip.setAttribute('max-flips', 8);
+flip.setAttribute('min-flips', '5');
+flip.setAttribute('max-flips', '8');
 
-// get min/max flips
-console.log('min flips:', flip.minFlips);
-console.log('max flips:', flip.maxFlips);
-```
-
-### .duration
-
-Duration of flipping one card in milliseconds. Default is `400`.
-
-```html
-<!-- set duration -->
-<flip-pack duration="200">
-  <div class="card">A</div>
-  <div class="card">B</div>
-  <div class="card">C</div>
-  <div class="card">D</div>
-</flip-pack>
-```
-
-```js
-// set duration
-flip.duration = 200;
-
-// get duration
-console.log('duration:', flip.duration);
-```
-
-### .direction
-
-Direction of flipping. Default is `down`:
-
-| Name | Description |
-| -: | :- |
-| down | Flipping down |
-| up | Flipping up |
-| left | Flipping left |
-| right | Flipping right |
-
-```html
-<!-- set direction -->
-<flip-pack direction="left">
-  <div class="card">A</div>
-  <div class="card">B</div>
-  <div class="card">C</div>
-  <div class="card">D</div>
-</flip-pack>
-```
-
-```js
-// set direction
-flip.direction = 'left';
-
-// get direction
-console.log('direction:', flip.direction);
+// get min/max flips in number
+console.log('Min flips:', flip.minFlips);
+console.log('Max flips:', flip.maxFlips);
+// or in string
+console.log('Min flips:', flip.getAttribute('minFlips'));
+console.log('Max flips:', flip.getAttribute('maxFlips'));
 ```
 
 ### .perspective
 
-3D perspective of flipping. The value is the CSS perspective. Default is `10rem`. You might have to set the value if the size of card is large.
+> Type of value: _`string`_
+>
+> Default: _`2 * Math.max({width_of_candidate}, {height_of_candidate})`_
 
-**NOTICE: We should .**
+CSS 3D perspective of flipping animation.
 
 ```html
 <!-- set perspective -->
 <flip-pack perspective="50vmin">
-  <div class="card">A</div>
-  <div class="card">B</div>
-  <div class="card">C</div>
-  <div class="card">D</div>
+  <div>A</div>
+  <div>B</div>
+  <div>C</div>
+  <div>D</div>
 </flip-pack>
 ```
 
 ```js
 // set perspective
 flip.perspective = '50vmin';
+// or
+flip.setAttribute('perspective', '50vmin');
 
 // get perspective
-console.log('perspective:', flip.perspective);
+console.log('CSS perspective:', flip.perspective);
+// or
+console.log('CSS perspective:', flip.getAttribute('perspective'));
+```
+
+### .index
+
+> Type of value: _`number`_
+>
+> Default: _`0`_ if there is at least 1 candidate. Otherwise _`-1`_.
+
+Index of current candidate. Set index to change the current displayed candidate without flipping animation.
+
+> :warning: _**If we assign both [`index`](#index) and [`value`](#value) on HTML attributes, we would apply the value of `index` instead of `value`.**_
+
+```html
+<!-- initial index -->
+<flip-pack index="2">
+  <div>A</div>
+  <div>B</div>
+  <div>C</div>
+  <div>D</div>
+</flip-pack>
+```
+
+```js
+// set index
+flip.index = 2;
+// or
+flip.setAttribute('index', '2');
+
+// get index in number
+console.log('Current index:', flip.index);
+// or in string
+console.log('Current index:', flip.getAttribute('index'));
+```
+
+### .value
+
+> Type of value: _`string` | `null`_
+
+Value of current candidate. Set value of candidate candidates to change the current displayed candidate without flipping animation.
+
+> :warning: _**If we assign both [`index`](#index) and [`value`](#value) on HTML attributes, we would apply the value of `index` instead of `value`.**_
+
+```html
+<!-- set value -->
+<flip-pack value="c">
+  <div value="a">A</div>
+  <div value="b">B</div>
+  <div value="c">C</div>
+  <div value="d">D</div>
+</flip-pack>
+```
+
+```js
+// set value
+flip.value = 'c';
+// or
+flip.setAttribute('value', 'c');
+
+// get value
+console.log('Current value:', flip.value);
+// or
+console.log('Current value:', flip.getAttribute('value'));
+```
+
+### .candidate
+
+> Type of value: _`HTMLElement` | `null`_
+
+Current displayed candidate. Set an candidate element to change the current displayed candidate without flipping.
+
+```html
+<flip-pack>
+  <div value="a">A</div>
+  <div value="b">B</div>
+  <div value="c">C</div>
+  <div value="d">D</div>
+</flip-pack>
+```
+
+```js
+// set candidate
+flip.candidate = flip.querySelector('[value="d"]');
+
+// get candidate
+console.log('Current candidate:', flip.candidate);
 ```
 
 ## Methods
 
-Flip supports the following methods:
+Flip methods deal with those related to flip.
 
 ### Static
 
-#### Flip.getCardValue(_card_)
+#### Flip.getCandidateValue(_candidate_)
 
-A static method returning the value of card element. Basically is the `value` attribute value of the card element.
-
-#### Flip.cloneCard(_card_)
-
-This is a static method returning a card element cloned from the input one. It will call this method for cloning the previous and next card element to making the flipping animation.
-
-### Prototype
-
-#### .getCardByIndex(_index_)
-
-Returns the nth card by index of cards wrapped in the flip element. `null` if the target card doesn't exist.
-
-#### .getCardInfo(_source_)
-
-Returns the card info. The source can be _number_ as card index or _HTMLElement_ as card element. Values of returned object:
-
-| Name | Type | Description |
+| Argument | Type | Description |
 | -: | :-: | :- |
-| index | _number_ | Index of card. `-1` if source doesn't exist |
-| card | _HTMLElement_ | Card element. `null` if source doesn't exist |
+| candidate | _HTMLElement_ | Candidate element |
 
-#### .getValueByIndex(_index_)
+Returns the value of candidate element. The value is the same as the attribute value of `value`.
 
-Returns the value of the nth card by index. `null` when the card doesn't exist.
-
-#### .getIndexByCard(_card_)
-
-Returns the index of card element of wrapped cards. The same as `flip.cards.indexOf(card)`. `-1` on the card doesn't exist.
-
-#### .getIndexByValue(_value_)
-
-Returns the index of card with the specific value. `-1` if there is no card matches the value.
-
-#### .getNextIndex(_options?_)
-
-Returns the next card index with options:
-
-| Name | Type | Description |
-| -: | :-: | :- |
-| different? | _boolean_ | `true` to prevent from getting the same card as the current one. Default is `true` |
-| mode? | _string_ | Mode of choosing the next card. Default is the configured mode value of flip |
-
-#### .getNextCard(_options?_)
-
-Returns the next card with options the same as [`.getNextIndex(options?)`](#getnextindexoptions).
-
-#### .flip(_next?_, _options?_)
-
-Flips to the specific card element/index with flipping animation. If not specify target to flip, it will call [`.getNextIndex()`](#getnextindexoptions) to get the next card. If there are cards between the current card and target card, the flip element would flip over these cards to the target card.
-
-Values of options:
-
-| Name | Type | Description |
-| -: | :-: | :- |
-| direct? | _boolean_ | `true` to flip only once to the target card. Default is `false` |
-| duration? | _number_ | Duration of flipping one card. Default is the configured duration value of flip |
-| direction? | _string_ | Flipping direction. Default is the configured direction value of flip |
-
-```js
-// flip 3 times
-await flip.flip(); // use await to wait until flipping animation ends
-await flip.flip();
-await flip.flip();
+```html
+<flip-pack>
+  <div value="a">A</div>
+  <div value="b">B</div>
+  <div value="c">C</div>
+  <div value="d">D</div>
+</flip-pack>
 ```
 
-#### .flipToCard(_next_, _options?_)
+```js
+// get candidate value: 'a'
+console.log('Value:', Flip.getCandidateValue(flip.firstElementChild()));
+```
 
-Alias of [`.flip()`](#flipnext-options) with the first argument for card element.
+### Instance
 
-#### .flipToIndex(_index_, _options?_)
+#### .getCandidateNode(_source_)
 
-Alias of [`.flip()`](#flipnext-options) with the first argument for card index.
+Returns the candidate element by any of the following types:
 
-#### .flipDirectly(_next?_, _options?_)
+| Type | Description |
+| :-: | :- |
+| _number_ | Index of candidate |
+| _string_ | Value of candidate |
 
-Alias of [`.flip()`](#flipnext-options) with the `direct` of options set to `true`, which flips card only once to the target card.
+#### .getCandidateIndex(_source_)
 
-#### .flipToCardDirectly(_card_, _options?_)
+Returns the candidate index by any of the following types:
 
-Alias of [`.flipDirectly()`](#flipdirectlynext-options) with the first argument for card element.
+| Type | Description |
+| :-: | :- |
+| _string_ | Value of candidate |
+| _HTMLElement_ | Element of candidate |
 
-#### .flipToIndexDirectly(_index_, _options?_)
+#### .getCandidateValue(_source_)
 
-Alias of [`.flipDirectly()`](#flipdirectlynext-options) with the first argument for card index.
+Returns the candidate value by any of the following types:
+
+| Type | Description |
+| :-: | :- |
+| _number_ | Index of candidate |
+| _HTMLElement_ | Element of candidate |
+
+#### .getCandidateInfo(_source_)
+
+Returns the object of candidate info by any of the following types:
+
+| Type | Description |
+| :-: | :- |
+| _number_ | Index of candidate |
+| _string_ | Value of candidate |
+| _HTMLElement_ | Element of candidate |
+
+Properties of candidate info:
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| index | _number_ | Index of candidate |
+| value | _string \| null_ | Value of candidate |
+| node | _HTMLElement \| null_ | Element of candidate |
+
+#### .getNextCandidateIndex(_options?_)
+
+Returns the next candidate index with `options`:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| different? | _boolean_ | Set _`true`_ to pick candidate different from the current one |
+| mode? | _[Mode](#mode)_ | Mode of picking candidate |
+
+#### .getNextCandidateNode(_options?_)
+
+Returns the next candidate element with `options`. The properties of `options` are the same as [`.getNextCandidateIndex`](#getnextcandidateindexoptions).
+
+#### .getNextCandidateValue(_options?_)
+
+Returns the next candidate value with `options`. The properties of `options` are the same as [`.getNextCandidateIndex`](#getnextcandidateindexoptions).
+
+#### .getNextCandidateInfo(_options?_)
+
+Returns the object of next candidate info with `options`. The properties of `options` are the same as [`.getNextCandidateIndex`](#getnextcandidateindexoptions).
+
+#### .flip(_source?_, _options?_)
+
+Flips to the specific candidate by any of the following types:
+
+| Type | Description |
+| :-: | :- |
+| _number_ | Index of candidate |
+| _string_ | Value of candidate |
+| _HTMLElement_ | Element of candidate |
+
+Properties of `options` extend that of [`.getNextCandidateIndex`](#getnextcandidateindexoptions):
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| direct? | _boolean_ | Flip to the target without flipping other candidates |
+| direction? | _[Direction](#direction)_ | Direction of flipping animation |
+| duration? | _number_ | Duration of flipping per candidate |
+
+```js
+// use await to wait until flipping animation ends
+await flip.flip({
+  direct: true,
+});
+```
+
+#### .flip(_options?_)
+
+Flips to the defaul next candidate with the same `options` as [`.flip`](#flipsource-options).
 
 ## Events
 
-Flip supports the following events:
+Events for flip elements:
 
 ### flipstart
 
-Start of flipping cards.
+> **Cancelable: `true`**
+>
+> Would not switch to target candidate if the event is canceled.
 
-> **This event can be cancelled and the flipping would not be performed. Also the card would not be changed.**
+Dispatches on starting of switching candidate.
 
 Values of `event.detail`:
 
 | Name | Type | Description |
 | -: | :-: | :- |
-| direct | _boolean_ | `true` to flip only once to the target card |
-| duration | _number_ | Duration of flipping one card |
-| direction | _string_ | Flipping direction |
-| lastIndex | _number_ | The current card index |
-| lastCard | _HTMLElement_ | The current card element |
-| targetIndex | _number_ | The target card index |
-| targetCard | _HTMLElement_ | The target card element |
+| mode | _[Mode](#mode)_ | Mode of flipping |
+| direct | _boolean_ | `true` to flip only once to the target candidate |
+| different | _boolean_ | `true` to pick the different candidate from the current ont |
+| duration | _number_ | Duration of flipping per candidate |
+| direction | _[Direction](#direction)_ | Direction of flipping animation |
+| lastCandidateInfo | _[CandidateInfo](#getcandidateinfosource)_ | Object of current candidate info |
+| targetCandidateInfo | _[CandidateInfo](#getcandidateinfosource)_ | Object of target candidate info |
 
 ### flipend
 
-End of flipping cards. Values of `event.detail` is the same as [flipstart](#flipstart).
+> **Cancelable: `false`**
 
-### flipcardstart
+Dispatches on the end of switching candidate.
 
-Start of flipping one card.
+Properties of `event.detail` is the same as [flipstart](#flipstart).
 
-> **This event can be cancelled and the card would be changed without flipping animation.**
+### flipcandidatestart
 
-Values of `event.detail`:
+> **Cancelable: `true`**
+>
+> Would not display flipping animation if the event is canceled.
+
+Dispatches on starting of flipping animation.
+
+Properties of `event.detail` extend that of [flipstart](#flipstart):
 
 | Name | Type | Description |
 | -: | :-: | :- |
-| direct | _boolean_ | `true` to flip only once to the target card |
-| duration | _number_ | Duration of flipping one card |
-| direction | _string_ | Flipping direction |
-| lastIndex | _number_ | The current card index |
-| lastCard | _HTMLElement_ | The current card element |
-| nextIndex | _number_ | The next card index |
-| nextCard | _HTMLElement_ | The next card element |
-| tempCard | _HTMLElement_ | The temporary card element for flipping animation |
+| tempCandidateNode | _HTMLElement_ | Temporary element for handleing animation of flipping |
 
-### flipcardend
+### flipcandidateend
 
-End of flipping one card. Values of `event.detail` is the same as [flipcardstart](#flipcardstart).
+> **Cancelable: `false`**
+
+Dispatchse on the end of flipping animation.
+
+Properties of `event.detail` is the same as [flipcandidatestart](#flipcandidatestart).
 
 ## License
 
