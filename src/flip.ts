@@ -19,7 +19,6 @@ const template = document.createElement('template');
 
 export const defaultAttributeValues = {
   [Attribute.mode]: Mode.loop,
-  [Attribute.direct]: false,
   [Attribute.duration]: 400,
   [Attribute.direction]: Direction.down,
   [Attribute.index]: -1,
@@ -143,24 +142,6 @@ class Flip extends HTMLElement {
     }
 
     this.setAttribute(Attribute.mode, mode);
-  }
-
-  /**
-   * Returns directly flipping.
-   */
-  get direct(): boolean {
-    return this.getAttribute(Attribute.direct) !== null;
-  }
-
-  /**
-   * Sets directly flipping.
-   */
-  set direct(direct: boolean) {
-    if (direct) {
-      this.setAttribute(Attribute.direct, '');
-    } else {
-      this.removeAttribute(Attribute.direct);
-    }
   }
 
   /**
