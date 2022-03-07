@@ -1,7 +1,7 @@
 import Flip from '../flip';
 import Mode from '../values/mode';
 
-export interface GetNextCardOptions {
+export interface GetNextCandidateOptions {
   different?: boolean;
   mode?: Mode;
 }
@@ -9,15 +9,15 @@ export interface GetNextCardOptions {
 /**
  * Returns the index of next card.
  */
-function getNextCardIndex(
+function getNextCandidateIndex(
   this: Flip,
-  options: GetNextCardOptions = {},
+  options: GetNextCandidateOptions = {},
 ): number {
   const {
-    different = this.cardsCatch.length > 1,
+    different = this.candidatesCatch.length > 1,
     mode = this.mode,
   } = options;
-  const { index, cardsCatch } = this;
+  const { index, candidatesCatch: cardsCatch } = this;
   const { length } = cardsCatch;
 
   switch (mode) {
@@ -58,4 +58,4 @@ function getNextCardIndex(
   }
 }
 
-export default getNextCardIndex;
+export default getNextCandidateIndex;

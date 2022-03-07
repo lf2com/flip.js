@@ -5,26 +5,26 @@ import { triggerEvent } from '../../utils/eventHandler';
 import ClassName from '../../values/className';
 import Event from '../../values/event';
 import Slot from '../../values/slot';
-import { CardInfo } from '../getCardInfo';
+import { CandidateInfo } from '../getCandidateInfo';
 import { FlipAnimationOption } from './flipAnimation';
 
-export interface FlipOneCardOptions extends Required<FlipOptions> {
-  lastCardInfo: CardInfo;
-  nextCardInfo: CardInfo;
+export interface FlipOneCandidateOptions extends Required<FlipOptions> {
+  lastCandidateInfo: CandidateInfo;
+  nextCandidateInfo: CandidateInfo;
 }
 
 /**
  * Flips card once.
  */
-async function flipOneCard(
+async function flipOneCandidate(
   this: Flip,
-  options: FlipOneCardOptions,
+  options: FlipOneCandidateOptions,
 ): Promise<void> {
-  const { nextCardInfo } = options;
+  const { nextCandidateInfo } = options;
   const {
     index: nextIndex,
-  } = nextCardInfo;
-  const tempCardNode = createTempNode({
+  } = nextCandidateInfo;
+  const tempCandidateNode = createTempNode({
     className: ClassName.temp,
     slot: Slot.temp,
   });
@@ -35,18 +35,18 @@ async function flipOneCard(
   }
 
   this.index = nextIndex;
-  this.append(tempCardNode);
+  this.append(tempCandidateNode);
 
   const passFlipCardStartEvent = triggerEvent<FlipAnimationOption>(
     this,
-    Event.flipCardStart,
+    Event.flipCandidateStart,
     {
       bubbles: true,
       cancelable: true,
       composed: true,
       detail: {
         ...options,
-        tempCardNode,
+        tempCandidateNode,
       },
     },
   );
@@ -54,24 +54,24 @@ async function flipOneCard(
   if (passFlipCardStartEvent) {
     await this.flipAnimation({
       ...options,
-      tempCardNode,
+      tempCandidateNode,
     });
   }
 
   triggerEvent<FlipAnimationOption>(
     this,
-    Event.flipCardEnd,
+    Event.flipCandidateEnd,
     {
       bubbles: true,
       cancelable: false,
       composed: true,
       detail: {
         ...options,
-        tempCardNode,
+        tempCandidateNode,
       },
     },
   );
-  tempCardNode.remove();
+  tempCandidateNode.remove();
 }
 
-export default flipOneCard;
+export default flipOneCandidate;

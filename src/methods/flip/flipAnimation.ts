@@ -1,15 +1,15 @@
 import Flip from '../../flip';
 import Direction from '../../values/direction';
-import { FlipOneCardOptions } from './flipOneCard';
+import { FlipOneCandidateOptions } from './flipOneCandidate';
 import flippingHorizontally from './horizontal';
 import flippingVertically from './vertical';
 
-export interface FlipAnimationOption extends Required<FlipOneCardOptions> {
-  tempCardNode: HTMLElement;
+export interface FlipAnimationOption extends Required<FlipOneCandidateOptions> {
+  tempCandidateNode: HTMLElement;
 }
 
 /**
- * Does flipping animation from last card to next card.
+ * Does flipping animation from last candidate to next candidate.
  */
 async function flipAnimation(
   this: Flip,

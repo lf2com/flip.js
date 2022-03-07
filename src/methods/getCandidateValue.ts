@@ -3,7 +3,7 @@ import Flip from '../flip';
 /**
  * Returns card value by reference.
  */
-function getCardValue(
+function getCandidateValue(
   this: Flip,
   source: number | HTMLElement | null,
 ): string | null {
@@ -14,11 +14,11 @@ function getCardValue(
 
   // card node
   if (source instanceof HTMLElement) {
-    return Flip.getCardValue(source);
+    return Flip.getCandidateValue(source);
   }
 
   // index
-  return Flip.getCardValue(this.cardsCatch[source]);
+  return Flip.getCandidateValue(this.candidatesCatch[source]);
 }
 
-export default getCardValue;
+export default getCandidateValue;

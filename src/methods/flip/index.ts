@@ -2,25 +2,25 @@ import Flip from '../../flip';
 import { triggerEvent } from '../../utils/eventHandler';
 import Direction from '../../values/direction';
 import Event from '../../values/event';
-import { CardInfo } from '../getCardInfo';
-import { GetNextCardOptions } from '../getNextCardIndex';
-import flipOneCard from './flipOneCard';
+import { CandidateInfo } from '../getCandidateInfo';
+import { GetNextCandidateOptions } from '../getNextCandidateIndex';
+import flipOneCandidate from './flipOneCandidate';
 
-export interface FlipOptions extends GetNextCardOptions {
+export interface FlipOptions extends GetNextCandidateOptions {
   direct?: boolean;
   direction?: Direction;
   duration?: number;
 }
 
 export interface FlipDetail extends Required<FlipOptions> {
-  lastCardInfo: CardInfo;
-  targetCardInfo: CardInfo;
+  lastCandidateInfo: CandidateInfo;
+  targetCandidateInfo: CandidateInfo;
 }
 
 type FlipSource = number | string | HTMLElement | null;
 
 /**
- * Flips to specific card/index.
+ * Flips to specific candidate/index.
  */
 async function flip<
   A0 extends FlipSource | FlipOptions,
@@ -36,26 +36,26 @@ async function flip<
   ) ?? {};
   const {
     mode = this.mode,
-    different = this.cardsCatch.length > 1,
-    direct = this.direct,
+    direct = false,
+    different = this.candidatesCatch.length > 1,
     duration = this.duration,
     direction = this.direction,
   } = options;
   const targetSource = (arg0 === options || arg0 === undefined
-    ? this.getNextCardIndex({ different, mode })
+    ? this.getNextCandidateIndex({ different, mode })
     : arg0
   ) as number;
-  const targetCardInfo = this.getCardInfo(targetSource);
+  const targetCandidateInfo = this.getCandidateInfo(targetSource);
   const {
     index: targetIndex,
     node: targetNode,
-  } = targetCardInfo;
+  } = targetCandidateInfo;
 
   if (targetNode === null) {
-    throw new ReferenceError(`Target card doesn't exist: ${targetSource}`);
+    throw new ReferenceError(`Target candidate doesn't exist: ${targetSource}`);
   }
 
-  const lastCardInfo = this.getCardInfo(this.index);
+  const lastCandidateInfo = this.getCandidateInfo(this.index);
   const passStartEvent = triggerEvent<FlipDetail>(
     this,
     Event.flipStart,
@@ -69,8 +69,8 @@ async function flip<
         different,
         duration,
         direction,
-        lastCardInfo,
-        targetCardInfo,
+        lastCandidateInfo,
+        targetCandidateInfo,
       },
     },
   );
@@ -80,14 +80,14 @@ async function flip<
   }
 
   if (direct) {
-    await flipOneCard.call(this, {
+    await flipOneCandidate.call(this, {
       mode,
       direct,
       different,
       duration,
       direction,
-      lastCardInfo,
-      nextCardInfo: targetCardInfo,
+      lastCandidateInfo,
+      nextCandidateInfo: targetCandidateInfo,
     });
   } else {
     const {
@@ -97,24 +97,24 @@ async function flip<
     const flipNext = async (times = 1): Promise<void> => {
       const nextIndex = (times < maxFlips
         ? (
-          this.getNextCardIndex({
+          this.getNextCandidateIndex({
             mode,
             different: times < minFlips,
           })
         )
         : targetIndex
       );
-      const nextCardInfo = this.getCardInfo(nextIndex);
-      const currentCardInfo = this.getCardInfo(this.index);
+      const nextCandidateInfo = this.getCandidateInfo(nextIndex);
+      const currentCandidateInfo = this.getCandidateInfo(this.index);
 
-      await flipOneCard.call(this, {
+      await flipOneCandidate.call(this, {
         mode,
         direct,
         different,
         duration,
         direction,
-        lastCardInfo: currentCardInfo,
-        nextCardInfo,
+        lastCandidateInfo: currentCandidateInfo,
+        nextCandidateInfo,
       });
 
       if (nextIndex !== targetIndex) {
@@ -138,8 +138,8 @@ async function flip<
         different,
         duration,
         direction,
-        lastCardInfo,
-        targetCardInfo,
+        lastCandidateInfo,
+        targetCandidateInfo,
       },
     },
   );

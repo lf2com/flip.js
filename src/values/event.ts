@@ -1,7 +1,7 @@
 enum Event {
   flipStart = 'flipstart',
-  flipCardStart = 'flipcardstart',
-  flipCardEnd = 'flipcardend',
+  flipCandidateStart = 'flipcandidatestart',
+  flipCandidateEnd = 'flipcandidateend',
   flipEnd = 'flipend',
 }
 

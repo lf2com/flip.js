@@ -1,11 +1,10 @@
 import flip, { FlipOptions } from './methods/flip';
 import flipAnimation from './methods/flip/flipAnimation';
-import getCardIndex from './methods/getCardIndex';
-import getCardInfo from './methods/getCardInfo';
-import getCardNode from './methods/getCardNode';
-import getCardValue from './methods/getCardValue';
-import getNextCardIndex from './methods/getNextCardIndex';
-import cloneCard from './utils/cloneCard';
+import getCandidateIndex from './methods/getCandidateIndex';
+import getCandidateInfo from './methods/getCandidateInfo';
+import getCandidateNode from './methods/getCandidateNode';
+import getCandidateValue from './methods/getCandidateValue';
+import getNextCandidateIndex from './methods/getNextCandidateIndex';
 import registerElement from './utils/registerElement';
 import Attribute from './values/attribute';
 import Direction from './values/direction';
@@ -55,12 +54,12 @@ export interface FlippingOption {
   duration: number;
   index: number;
   lastIndex: number;
-  lastCard: HTMLElement | null;
-  tempCard: HTMLElement;
+  lastCandidate: HTMLElement | null;
+  tempCandidate: HTMLElement;
 }
 
 class Flip extends HTMLElement {
-  protected cardsCatch: HTMLElement[] = [];
+  protected candidatesCatch: HTMLElement[] = [];
 
   protected rootElement: HTMLElement;
 
@@ -73,14 +72,21 @@ class Flip extends HTMLElement {
     this.rootElement = shadowRoot.querySelector('flip') as HTMLElement;
     (shadowRoot.querySelector('slot:not([name])') as HTMLSlotElement)
       .addEventListener('slotchange', () => {
-        this.cardsCatch = Array.from(
+        this.candidatesCatch = Array.from(
           this.querySelectorAll(':scope > :not([slot=temp])'),
         );
 
-        const { index, cardsCatch } = this;
+        const { candidatesCatch } = this;
 
-        if (index === -1 || index >= cardsCatch.length) {
-          this.index = cardsCatch.length > 0 ? 0 : -1;
+        if (this.index === -1 && this.hasAttribute(Attribute.value)) {
+          // initialize index by value
+          this.value = this.getAttribute(Attribute.value);
+        }
+
+        if (this.index >= candidatesCatch.length || this.index < 0) {
+          const index = candidatesCatch.length > 0 ? 0 : -1;
+
+          this.index = index;
         }
       });
   }
@@ -103,17 +109,17 @@ class Flip extends HTMLElement {
   static cloneCard = cloneCard
 
   /**
-   * Returns value of card node.
+   * Returns value of candidate node.
    */
-  static getCardValue(card: HTMLElement | null): string | null {
-    return card?.getAttribute?.(Attribute.value) ?? null;
+  static getCandidateValue(candidate: HTMLElement | null): string | null {
+    return candidate?.getAttribute?.(Attribute.value) ?? null;
   }
 
   /**
-   * Returns card elements.
+   * Returns candidate elements.
    */
-  get cards(): HTMLElement[] {
-    return [...this.cardsCatch];
+  get candidates(): HTMLElement[] {
+    return [...this.candidatesCatch];
   }
 
   /**
@@ -306,7 +312,7 @@ class Flip extends HTMLElement {
       return defaultAttributeValues[Attribute.index];
     }
 
-    return Number(index) % this.cards.length;
+    return Number(index) % this.candidates.length;
   }
 
   /**
@@ -319,27 +325,28 @@ class Flip extends HTMLElement {
       throw new TypeError(`Index should be an integer: ${index}`);
     }
 
-    const { cardsCatch } = this;
-    const cardInfo = this.getCardInfo(index);
+    const { candidatesCatch } = this;
+    const candidateInfo = this.getCandidateInfo(index);
     const {
-      index: cardIndex,
-      value: cardValue,
-      node: cardNode,
-    } = cardInfo;
+      index: candidateIndex,
+      value: candidateValue,
+      node: candidateNode,
+    } = candidateInfo;
 
-    if (cardNode === null && cardsCatch.length > 0) {
+    if (candidateNode === null && candidatesCatch.length > 0) {
       throw new Error(`Illegal index: ${index}`);
     }
 
-    if (cardIndex !== this.index) {
-      this.querySelectorAll(`[slot="${Slot.current}"]`).forEach((card) => {
-        card.removeAttribute('slot');
-      });
-      cardNode?.setAttribute?.('slot', Slot.current);
-      this.setAttribute(Attribute.index, `${cardIndex}`);
+    this.querySelectorAll(`[slot="${Slot.current}"]`).forEach((candidate) => {
+      candidate.removeAttribute('slot');
+    });
+    candidateNode?.setAttribute?.('slot', Slot.current);
 
-      if (cardValue) {
-        this.setAttribute(Attribute.value, cardValue);
+    if (candidateIndex !== this.index) {
+      this.setAttribute(Attribute.index, `${candidateIndex}`);
+
+      if (candidateValue) {
+        this.setAttribute(Attribute.value, candidateValue);
       } else {
         this.removeAttribute(Attribute.value);
       }
@@ -350,7 +357,7 @@ class Flip extends HTMLElement {
    * Returns current value.
    */
   get value(): string | null {
-    return this.getCardValue(this.index);
+    return this.getCandidateValue(this.index);
   }
 
   /**
@@ -361,77 +368,77 @@ class Flip extends HTMLElement {
       throw new TypeError(`Invalid value: ${value}`);
     }
 
-    this.index = this.getCardIndex(value as string);
+    this.index = this.getCandidateIndex(value);
   }
 
   /**
-   * Returns current card.
+   * Returns current candidate.
    */
-  get card(): HTMLElement | null {
-    return this.getCardNode(this.index);
+  get candidate(): HTMLElement | null {
+    return this.getCandidateNode(this.index);
   }
 
   /**
-   * Sets current card.
+   * Sets current candidate.
    */
-  set card(card: HTMLElement | null) {
-    this.index = this.getCardIndex(card as HTMLElement);
+  set candidate(candidate: HTMLElement | null) {
+    this.index = this.getCandidateIndex(candidate);
   }
 
   /**
-   * Returns card node.
+   * Returns candidate node.
    */
-  getCardNode = getCardNode
+  getCandidateNode = getCandidateNode
 
   /**
-   * Returns card index.
+   * Returns candidate index.
    */
-  getCardIndex = getCardIndex
+  getCandidateIndex = getCandidateIndex
 
   /**
-   * Returns card value.
+   * Returns candidate value.
    */
-  getCardValue = getCardValue
+  getCandidateValue = getCandidateValue
 
   /**
-   * Returns card info.
+   * Returns cacandidaterd info.
    */
-  getCardInfo = getCardInfo
+  getCandidateInfo = getCandidateInfo
 
   /**
-   * Returns the index of next card.
+   * Returns the index of next candidate.
    */
-  getNextCardIndex = getNextCardIndex
+  getNextCandidateIndex = getNextCandidateIndex
 
   /**
-   * Returns the node of next card.
+   * Returns the node of next candidate.
    */
-  getNextCardNode(...args: Parameters<Flip['getNextCardIndex']>): ReturnType<Flip['getCardNode']> {
-    const nextIndex = this.getNextCardIndex(...args);
+  getNextCandidateNode(...args: Parameters<Flip['getNextCandidateIndex']>): ReturnType<Flip['getCandidateNode']> {
+    const nextIndex = this.getNextCandidateIndex(...args);
 
-    return this.getCardNode(nextIndex);
+    return this.getCandidateNode(nextIndex);
   }
 
   /**
-   * Returns the value of next card.
+   * Returns the value of next candidate.
    */
-  getNextCardValue(...args: Parameters<Flip['getNextCardIndex']>): ReturnType<Flip['getCardValue']> {
-    const nextIndex = this.getNextCardIndex(...args);
+  getNextCandidateValue(...args: Parameters<Flip['getNextCandidateIndex']>): ReturnType<Flip['getCandidateValue']> {
+    const nextIndex = this.getNextCandidateIndex(...args);
 
-    return this.getCardValue(nextIndex);
+    return this.getCandidateValue(nextIndex);
   }
 
   /**
-   * Returns the info of next card.
+   * Returns the info of next candidate.
    */
-  getNextCardInfo(...args: Parameters<Flip['getNextCardIndex']>): ReturnType<Flip['getCardInfo']> {
-    const nextIndex = this.getNextCardIndex(...args);
+  getNextCandidateInfo(...args: Parameters<Flip['getNextCandidateIndex']>): ReturnType<Flip['getCandidateInfo']> {
+    const nextIndex = this.getNextCandidateIndex(...args);
 
-    return this.getCardInfo(nextIndex);
+    return this.getCandidateInfo(nextIndex);
   }
 
   /**
-   * Flips to card by reference.
+   * Flips to candidate by reference.
    */
   flip(
     source: number | string | HTMLElement,
@@ -445,7 +452,7 @@ class Flip extends HTMLElement {
   }
 
   /**
-   * Does flipping animation from last card to next card.
+   * Does flipping animation from last candidate to next candidate.
    */
   flipAnimation = flipAnimation
 }

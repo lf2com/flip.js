@@ -3,6 +3,7 @@ import prefixCss from '../../utils/prefixCss';
 import Direction from '../../values/direction';
 import createTempNode from '../../utils/createTempNode';
 import { FlipAnimationOption } from './flipAnimation';
+import cloneNode from '../../utils/cloneNode';
 
 type StyleGetter = (flip: Flip) => string;
 
@@ -22,7 +23,7 @@ const getBackgroundStyle: StyleGetter = () => (`
   }
 `);
 
-const getCardStyle: StyleGetter = (flip) => (`
+const getCandidateStyle: StyleGetter = (flip) => (`
   ${prefixCss(`@keyframes flip {
     0% {
       ${prefixCss('transform: perspective(var(--vert-perspective)) rotateX(0);', 'webkit')}
@@ -51,7 +52,7 @@ const getCardStyle: StyleGetter = (flip) => (`
   }
 `);
 
-const getNextCardStyle: StyleGetter = () => (`
+const getNextCandidateStyle: StyleGetter = () => (`
   ${prefixCss(`@keyframes clip-next {
     0% { opacity: 0 }
     50%, 100% { opacity: 1 }
@@ -63,7 +64,7 @@ const getNextCardStyle: StyleGetter = () => (`
   }
 `);
 
-const getLastCardStyle: StyleGetter = () => (`
+const getLastCandidateStyle: StyleGetter = () => (`
   ${prefixCss(`@keyframes clip-last {
     0% { opacity: 1 }
     50%, 100% { opacity: 0 }
@@ -75,7 +76,7 @@ const getLastCardStyle: StyleGetter = () => (`
 `);
 
 /**
- * Flips card vertically.
+ * Flips candidate vertically.
  */
 function flippingVertically(
   this: Flip,
@@ -84,68 +85,79 @@ function flippingVertically(
   const {
     duration,
     direction,
-    lastCardInfo,
-    nextCardInfo,
-    tempCardNode,
+    lastCandidateInfo,
+    nextCandidateInfo,
+    tempCandidateNode,
   } = options;
   const {
-    node: lastCardNode,
-  } = lastCardInfo;
-  const nextCardNode = nextCardInfo.node as HTMLElement;
+    node: lastCandidateNode,
+  } = lastCandidateInfo;
+  const nextCandidateNode = nextCandidateInfo.node as HTMLElement;
   const durationSec = duration / 1000;
-  const domBackground = createTempNode({ style: getBackgroundStyle(this) });
-  const domCard = createTempNode({ style: getCardStyle(this) });
-  const domNext = createTempNode({ style: getNextCardStyle(this) });
-  const domNextCard = Flip.cloneCard(nextCardNode);
+  const domCandidate = createTempNode({ style: getCandidateStyle(this) });
+  const domNext = createTempNode({ style: getNextCandidateStyle(this) });
+  const domNextCandidate = cloneNode(nextCandidateNode);
 
   switch (direction) {
     default:
     case Direction.down:
-      domBackground.style.setProperty('--y-top', 'var(--lower-y-top)');
-      domBackground.style.setProperty('--y-bottom', 'var(--lower-y-bottom)');
-      domCard.style.setProperty('--start-y-top', 'var(--upper-y-top)');
-      domCard.style.setProperty('--start-y-bottom', 'var(--upper-y-bottom)');
-      domCard.style.setProperty('--end-y-top', 'var(--lower-y-top)');
-      domCard.style.setProperty('--end-y-bottom', 'var(--lower-y-bottom)');
-      domCard.style.setProperty('--end-deg', 'var(--down-end-deg)');
+      domCandidate.style.setProperty('--start-y-top', 'var(--upper-y-top)');
+      domCandidate.style.setProperty('--start-y-bottom', 'var(--upper-y-bottom)');
+      domCandidate.style.setProperty('--end-y-top', 'var(--lower-y-top)');
+      domCandidate.style.setProperty('--end-y-bottom', 'var(--lower-y-bottom)');
+      domCandidate.style.setProperty('--end-deg', 'var(--down-end-deg)');
       break;
 
     case Direction.up:
-      domBackground.style.setProperty('--y-top', 'var(--upper-y-top)');
-      domBackground.style.setProperty('--y-bottom', 'var(--upper-y-bottom)');
-      domCard.style.setProperty('--start-y-top', 'var(--lower-y-top)');
-      domCard.style.setProperty('--start-y-bottom', 'var(--lower-y-bottom)');
-      domCard.style.setProperty('--end-y-top', 'var(--upper-y-top)');
-      domCard.style.setProperty('--end-y-bottom', 'var(--upper-y-bottom)');
-      domCard.style.setProperty('--end-deg', 'var(--up-end-deg)');
+      domCandidate.style.setProperty('--start-y-top', 'var(--lower-y-top)');
+      domCandidate.style.setProperty('--start-y-bottom', 'var(--lower-y-bottom)');
+      domCandidate.style.setProperty('--end-y-top', 'var(--upper-y-top)');
+      domCandidate.style.setProperty('--end-y-bottom', 'var(--upper-y-bottom)');
+      domCandidate.style.setProperty('--end-deg', 'var(--up-end-deg)');
       break;
   }
 
-  domCard.style.setProperty('--duration', `${durationSec}s`);
-  domNextCard.removeAttribute('slot');
-  domNext.append(domNextCard);
-  domCard.append(domNext);
+  domCandidate.style.setProperty('--duration', `${durationSec}s`);
+  domNextCandidate.removeAttribute('slot');
+  domNext.append(domNextCandidate);
+  domCandidate.append(domNext);
 
-  if (lastCardNode) {
-    const domLast = createTempNode({ style: getLastCardStyle(this) });
-    const domLastCard = Flip.cloneCard(lastCardNode);
+  if (lastCandidateNode) {
+    const domBackground = createTempNode({ style: getBackgroundStyle(this) });
+    const domLast = createTempNode({ style: getLastCandidateStyle(this) });
+    const domLastCandidate = cloneNode(lastCandidateNode);
+    const domLastBackgroundCandidate = cloneNode(lastCandidateNode);
 
-    domLastCard.removeAttribute('slot');
-    domLast.append(domLastCard);
-    domCard.append(domLast);
-    domBackground.append(Flip.cloneCard(domLast));
+    switch (direction) {
+      default:
+      case Direction.down:
+        domBackground.style.setProperty('--y-top', 'var(--lower-y-top)');
+        domBackground.style.setProperty('--y-bottom', 'var(--lower-y-bottom)');
+        break;
+
+      case Direction.up:
+        domBackground.style.setProperty('--y-top', 'var(--upper-y-top)');
+        domBackground.style.setProperty('--y-bottom', 'var(--upper-y-bottom)');
+        break;
+    }
+
+    domLastCandidate.removeAttribute('slot');
+    domLast.append(domLastCandidate);
+    domCandidate.append(domLast);
+    domLastBackgroundCandidate.removeAttribute('slot');
+    domBackground.append(domLastBackgroundCandidate);
+    tempCandidateNode.append(domBackground);
   }
 
   return new Promise((resolve) => {
-    tempCardNode.addEventListener(
+    tempCandidateNode.addEventListener(
       'animationend',
       () => {
         resolve(undefined);
       },
       { once: true },
     );
-    tempCardNode.append(domBackground);
-    tempCardNode.append(domCard);
+    tempCandidateNode.append(domCandidate);
   });
 }
 

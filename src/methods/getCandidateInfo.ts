@@ -1,6 +1,6 @@
 import Flip from '../flip';
 
-export interface CardInfo {
+export interface CandidateInfo {
   index: number;
   node: HTMLElement | null;
   value: string | null;
@@ -9,10 +9,10 @@ export interface CardInfo {
 /**
  * Returns card info by reference.
  */
-function getCardInfo(
+function getCandidateInfo(
   this: Flip,
   source: number | string | HTMLElement | null,
-): CardInfo {
+): CandidateInfo {
   // null
   if (source === null) {
     return {
@@ -24,36 +24,36 @@ function getCardInfo(
 
   // card node
   if (source instanceof HTMLElement) {
-    const index = this.getCardIndex(source);
+    const index = this.getCandidateIndex(source);
     const card = index === -1 ? null : source;
 
     return {
       node: card,
       index,
-      value: Flip.getCardValue(card),
+      value: Flip.getCandidateValue(card),
     };
   }
 
   // value
   if (typeof source === 'string') {
-    const index = this.getCardIndex(source);
-    const card = index === -1 ? null : this.getCardNode(index);
+    const index = this.getCandidateIndex(source);
+    const card = index === -1 ? null : this.getCandidateNode(index);
 
     return {
       node: card,
       index,
-      value: Flip.getCardValue(card),
+      value: Flip.getCandidateValue(card),
     };
   }
 
   // index
-  const card = this.getCardNode(source);
+  const card = this.getCandidateNode(source);
 
   return {
     node: card,
     index: card === null ? -1 : source,
-    value: Flip.getCardValue(card),
+    value: Flip.getCandidateValue(card),
   };
 }
 
-export default getCardInfo;
+export default getCandidateInfo;

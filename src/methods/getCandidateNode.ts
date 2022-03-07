@@ -3,7 +3,7 @@ import Flip from '../flip';
 /**
  * Returns card node by reference.
  */
-function getCardNode(
+function getCandidateNode(
   this: Flip,
   source: number | string | null,
 ): HTMLElement | null {
@@ -14,15 +14,15 @@ function getCardNode(
 
   // value
   if (typeof source === 'string') {
-    const cardResult = this.cardsCatch.find((card) => (
-      Flip.getCardValue(card) === source
+    const cardResult = this.candidatesCatch.find((card) => (
+      Flip.getCandidateValue(card) === source
     ));
 
     return cardResult ?? null;
   }
 
   // index
-  return this.cardsCatch[source] ?? null;
+  return this.candidatesCatch[source] ?? null;
 }
 
-export default getCardNode;
+export default getCandidateNode;

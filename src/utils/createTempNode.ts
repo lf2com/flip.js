@@ -1,11 +1,11 @@
-const tempCardCss = `
+const tempCandidateCss = `
   :host {
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    /*pointer-events: none;*/
+    pointer-events: none;
     display: block;
   }
 
@@ -40,7 +40,7 @@ function createTempNode(
 
   shadowRoot.innerHTML = `
     <style>
-      ${tempCardCss}
+      ${tempCandidateCss}
       ${style}
     </style>
     ${innerHTML}

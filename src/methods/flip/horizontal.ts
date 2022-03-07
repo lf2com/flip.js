@@ -1,4 +1,5 @@
 import Flip from '../../flip';
+import cloneNode from '../../utils/cloneNode';
 import createTempNode from '../../utils/createTempNode';
 import prefixCss from '../../utils/prefixCss';
 import Direction from '../../values/direction';
@@ -22,7 +23,7 @@ const getBackgroundStyle: StyleGetter = () => (`
   }
 `);
 
-const getCardStyle: StyleGetter = (flip) => (`
+const getCandidateStyle: StyleGetter = (flip) => (`
   ${prefixCss(`@keyframes flip {
     0% {
       ${prefixCss('transform: perspective(var(--hori-perspective)) rotateY(0);', 'webkit')}
@@ -51,7 +52,7 @@ const getCardStyle: StyleGetter = (flip) => (`
   }
 `);
 
-const getNextCardStyle: StyleGetter = () => (`
+const getNextCandidateStyle: StyleGetter = () => (`
   ${prefixCss(`@keyframes clip-next {
     0% { opacity: 0 }
     50%, 100% { opacity: 1 }
@@ -63,7 +64,7 @@ const getNextCardStyle: StyleGetter = () => (`
   }
 `);
 
-const getLastCardStyle: StyleGetter = () => (`
+const getLastCandidateStyle: StyleGetter = () => (`
   ${prefixCss(`@keyframes clip-last {
     0% { opacity: 1 }
     50%, 100% { opacity: 0 }
@@ -75,7 +76,7 @@ const getLastCardStyle: StyleGetter = () => (`
 `);
 
 /**
- * Flips card horizontally.
+ * Flips candidate horizontally.
  */
 function flippingHorizontally(
   this: Flip,
@@ -84,68 +85,78 @@ function flippingHorizontally(
   const {
     duration,
     direction,
-    lastCardInfo,
-    nextCardInfo,
-    tempCardNode,
+    lastCandidateInfo,
+    nextCandidateInfo,
+    tempCandidateNode,
   } = options;
   const {
-    node: lastCardNode,
-  } = lastCardInfo;
-  const nextCardNode = nextCardInfo.node as HTMLElement;
+    node: lastCandidateNode,
+  } = lastCandidateInfo;
+  const nextCandidateNode = nextCandidateInfo.node as HTMLElement;
   const durationSec = duration / 1000;
-  const domBackground = createTempNode({ style: getBackgroundStyle(this) });
-  const domCard = createTempNode({ style: getCardStyle(this) });
-  const domNext = createTempNode({ style: getNextCardStyle(this) });
-  const domNextCard = Flip.cloneCard(nextCardNode);
+  const domCandidate = createTempNode({ style: getCandidateStyle(this) });
+  const domNext = createTempNode({ style: getNextCandidateStyle(this) });
+  const domNextCandidate = cloneNode(nextCandidateNode);
 
   switch (direction) {
     default:
     case Direction.left:
-      domBackground.style.setProperty('--x-left', 'var(--left-x-left)');
-      domBackground.style.setProperty('--x-right', 'var(--left-x-right)');
-      domCard.style.setProperty('--start-x-left', 'var(--right-x-left)');
-      domCard.style.setProperty('--start-x-right', 'var(--right-x-right)');
-      domCard.style.setProperty('--end-x-left', 'var(--left-x-left)');
-      domCard.style.setProperty('--end-x-right', 'var(--left-x-right)');
-      domCard.style.setProperty('--end-deg', 'var(--left-end-deg)');
+      domCandidate.style.setProperty('--start-x-left', 'var(--right-x-left)');
+      domCandidate.style.setProperty('--start-x-right', 'var(--right-x-right)');
+      domCandidate.style.setProperty('--end-x-left', 'var(--left-x-left)');
+      domCandidate.style.setProperty('--end-x-right', 'var(--left-x-right)');
+      domCandidate.style.setProperty('--end-deg', 'var(--left-end-deg)');
       break;
 
     case Direction.right:
-      domBackground.style.setProperty('--x-left', 'var(--right-x-left)');
-      domBackground.style.setProperty('--x-right', 'var(--right-x-right)');
-      domCard.style.setProperty('--start-x-left', 'var(--left-x-left)');
-      domCard.style.setProperty('--start-x-right', 'var(--left-x-right)');
-      domCard.style.setProperty('--end-x-left', 'var(--right-x-left)');
-      domCard.style.setProperty('--end-x-right', 'var(--right-x-right)');
-      domCard.style.setProperty('--end-deg', 'var(--right-end-deg)');
+      domCandidate.style.setProperty('--start-x-left', 'var(--left-x-left)');
+      domCandidate.style.setProperty('--start-x-right', 'var(--left-x-right)');
+      domCandidate.style.setProperty('--end-x-left', 'var(--right-x-left)');
+      domCandidate.style.setProperty('--end-x-right', 'var(--right-x-right)');
+      domCandidate.style.setProperty('--end-deg', 'var(--right-end-deg)');
       break;
   }
 
-  domCard.style.setProperty('--duration', `${durationSec}s`);
-  domNextCard.removeAttribute('slot');
-  domNext.append(domNextCard);
-  domCard.append(domNext);
+  domCandidate.style.setProperty('--duration', `${durationSec}s`);
+  domNextCandidate.removeAttribute('slot');
+  domNext.append(domNextCandidate);
+  domCandidate.append(domNext);
 
-  if (lastCardNode) {
-    const domLast = createTempNode({ style: getLastCardStyle(this) });
-    const domLastCard = Flip.cloneCard(lastCardNode);
+  if (lastCandidateNode) {
+    const domBackground = createTempNode({ style: getBackgroundStyle(this) });
+    const domLast = createTempNode({ style: getLastCandidateStyle(this) });
+    const domLastCandidate = cloneNode(lastCandidateNode);
+    const domLastBackgroundCandidate = cloneNode(lastCandidateNode);
 
-    domLastCard.removeAttribute('slot');
-    domLast.append(domLastCard);
-    domCard.append(domLast);
-    domBackground.append(Flip.cloneCard(domLast));
+    switch (direction) {
+      default:
+      case Direction.left:
+        domBackground.style.setProperty('--x-left', 'var(--left-x-left)');
+        domBackground.style.setProperty('--x-right', 'var(--left-x-right)');
+        break;
+
+      case Direction.right:
+        domBackground.style.setProperty('--x-left', 'var(--right-x-left)');
+        domBackground.style.setProperty('--x-right', 'var(--right-x-right)');
+    }
+
+    domLastCandidate.removeAttribute('slot');
+    domLast.append(domLastCandidate);
+    domCandidate.append(domLast);
+    domLastBackgroundCandidate.removeAttribute('slot');
+    domBackground.append(domLastBackgroundCandidate);
+    tempCandidateNode.append(domBackground);
   }
 
   return new Promise((resolve) => {
-    tempCardNode.addEventListener(
+    tempCandidateNode.addEventListener(
       'animationend',
       () => {
         resolve(undefined);
       },
       { once: true },
     );
-    tempCardNode.append(domBackground);
-    tempCardNode.append(domCard);
+    tempCandidateNode.append(domCandidate);
   });
 }
 
