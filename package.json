@@ -1,6 +1,6 @@
 {
   "name": "@lf2com/flip.js",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Flip.js is an element for flipping effect for wrapped card elements",
   "main": "index.ts",
   "scripts": {
