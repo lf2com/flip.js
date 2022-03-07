@@ -32,7 +32,7 @@
         });
       });
 
-    // changes the mode of choosing next card
+    // changes the mode of choosing next candidate
     domMode.querySelectorAll('input[type=radio]')
       .forEach((dom) => {
         dom.addEventListener('change', function onChagne() {

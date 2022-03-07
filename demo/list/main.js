@@ -15,7 +15,7 @@
 
     // adds item to list
     function addItem(name) {
-      const domCard = document.createElement('div');
+      const domCandidate = document.createElement('div');
       const domNewItem = document.createElement('div');
       const domNewItemName = document.createElement('div');
       const domNewButtons = document.createElement('div');
@@ -23,8 +23,8 @@
       const domNewBtnMoveDown = document.createElement('div');
       const domNewBtnRemove = document.createElement('div');
 
-      domCard.innerHTML = name;
-      domCard.classList.add('card');
+      domCandidate.innerHTML = name;
+      domCandidate.classList.add('candidate');
       domNewItemName.innerHTML = name;
       domNewButtons.classList.add('buttons');
       domNewBtnMoveUp.classList.add('move-up');
@@ -32,40 +32,40 @@
       domNewBtnRemove.classList.add('remove');
       domNewBtnMoveUp.addEventListener('click', (event) => {
         const index = Array.from(domNewItem.parentNode.children).indexOf(domNewItem);
-        const card = domFlip.children[index];
+        const candidate = domFlip.children[index];
 
         domNewItem.parentNode.insertBefore(
           domNewItem,
           // should not throw error here if the item is not the top one
           domNewItem.previousSibling,
         );
-        card.parentNode.insertBefore(
-          card,
-          card.previousSibling,
+        candidate.parentNode.insertBefore(
+          candidate,
+          candidate.previousSibling,
         );
         event.stopPropagation();
       });
       domNewBtnMoveDown.addEventListener('click', (event) => {
         const index = Array.from(domNewItem.parentNode.children).indexOf(domNewItem);
-        const card = domFlip.children[index];
+        const candidate = domFlip.children[index];
 
         domNewItem.parentNode.insertBefore(
           domNewItem,
           // should not throw error here if the item is not the bottom one
           domNewItem.nextSibling.nextSibling,
         );
-        card.parentNode.insertBefore(
-          card,
-          card.nextSibling.nextSibling,
+        candidate.parentNode.insertBefore(
+          candidate,
+          candidate.nextSibling.nextSibling,
         );
         event.stopPropagation();
       });
       domNewBtnRemove.addEventListener('click', (event) => {
         const index = Array.from(domNewItem.parentNode.children).indexOf(domNewItem);
-        const card = domFlip.children[index];
+        const candidate = domFlip.children[index];
 
         domNewItem.remove();
-        card.remove();
+        candidate.remove();
         event.stopPropagation();
       });
       domNewItem.addEventListener('click', () => {
@@ -83,7 +83,7 @@
       domNewItem.append(domNewItemName);
       domNewItem.append(domNewButtons);
       domList.append(domNewItem);
-      domFlip.append(domCard);
+      domFlip.append(domCandidate);
     }
 
     // adds item

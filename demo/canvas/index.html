@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <title>Flip.js Demo - Canvas</title>
+    <link href="./style.scss" type="text/scss" rel="stylesheet" />
+    <script src="../utils/scriptLoader.js" module="scss/index"></script>
+    <script src="../utils/flip/index.js"></script>
+  </head>
+  <body>
+    <div class="row">
+      <flip-pack id="flip"
+        mode="random"
+        maxFlips="0"
+        direction="left"
+        duration="1000"
+      >
+        <div class="candidate" value="01"></div>
+        <div class="candidate" value="02"></div>
+        <div class="candidate" value="03"></div>
+        <div class="candidate" value="04"></div>
+        <div class="candidate" value="05"></div>
+        <div class="candidate" value="06"></div>
+      </flip-pack>
+    </div>
+  </body>
+  <script src="./main.js"></script>
+</html>
