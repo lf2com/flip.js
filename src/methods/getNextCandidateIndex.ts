@@ -2,7 +2,6 @@ import Flip from '../flip';
 import Mode from '../values/mode';
 
 export interface GetNextCandidateOptions {
-  different?: boolean;
   mode?: Mode;
 }
 
@@ -14,24 +13,20 @@ function getNextCandidateIndex(
   options: GetNextCandidateOptions = {},
 ): number {
   const {
-    different = this.candidatesCatch.length > 1,
     mode = this.mode,
   } = options;
-  const { index, candidatesCatch: cardsCatch } = this;
-  const { length } = cardsCatch;
+  const { index, candidatesCatch } = this;
+  const { length } = candidatesCatch;
 
   switch (mode) {
     default:
       throw new TypeError(`Invalid mode: ${mode}`);
 
-    case Mode.loop: {
-      const nextIndex = (index + 1) % length;
-
-      return (nextIndex === index && different
-        ? -1
-        : nextIndex
+    case Mode.loop:
+      return (length > 0
+        ? (index + 1) % length
+        : -1
       );
-    }
 
     case Mode.random: {
       switch (length) {
@@ -39,15 +34,12 @@ function getNextCandidateIndex(
           return -1;
 
         case 1:
-          return different ? -1 : this.index;
+          return this.index;
 
         default: {
-          let nextIndex = -1;
+          let nextIndex = index;
 
-          while (
-            nextIndex === -1
-            || (nextIndex === index && different)
-          ) {
+          while (nextIndex === index) {
             nextIndex = Math.floor(length * Math.random());
           }
 

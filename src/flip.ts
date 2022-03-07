@@ -136,6 +136,11 @@ class Flip extends HTMLElement {
   }
 
   /**
+   * Does flipping animation from last candidate to next candidate.
+   */
+  static flipAnimation = flipAnimation
+
+  /**
    * Returns candidate elements.
    */
   get candidates(): HTMLElement[] {
@@ -452,11 +457,6 @@ class Flip extends HTMLElement {
   flip(...args: Parameters<typeof flip>) {
     return flip.call(this, ...args);
   }
-
-  /**
-   * Does flipping animation from last candidate to next candidate.
-   */
-  protected flipAnimation = flipAnimation
 }
 
 registerElement(Flip, nodeName);

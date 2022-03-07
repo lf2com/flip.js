@@ -52,7 +52,7 @@ async function flipOneCandidate(
   );
 
   if (passFlipCardStartEvent) {
-    await this.flipAnimation({
+    await Flip.flipAnimation({
       ...options,
       tempCandidateNode,
     });

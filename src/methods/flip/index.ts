@@ -7,9 +7,11 @@ import { GetNextCandidateOptions } from '../getNextCandidateIndex';
 import flipOneCandidate from './flipOneCandidate';
 
 export interface FlipOptions extends GetNextCandidateOptions {
-  direct?: boolean;
   direction?: Direction;
   duration?: number;
+  minFlips?: number;
+  maxFlips?: number;
+  perspective?: string;
 }
 
 export interface FlipDetail extends Required<FlipOptions> {
@@ -36,13 +38,17 @@ async function flip<
   ) ?? {};
   const {
     mode = this.mode,
-    direct = false,
-    different = this.candidatesCatch.length > 1,
     duration = this.duration,
     direction = this.direction,
+    minFlips = this.minFlips,
+    maxFlips = this.maxFlips,
+    perspective = this.perspective,
   } = options;
+  const flipOptions: Required<FlipOptions> = {
+    mode, duration, direction, minFlips, maxFlips, perspective,
+  };
   const targetSource = (arg0 === options || arg0 === undefined
-    ? this.getNextCandidateIndex({ different, mode })
+    ? this.getNextCandidateIndex({ mode })
     : arg0
   ) as number;
   const targetCandidateInfo = this.getCandidateInfo(targetSource);
@@ -64,11 +70,7 @@ async function flip<
       cancelable: true,
       composed: true,
       detail: {
-        mode,
-        direct,
-        different,
-        duration,
-        direction,
+        ...flipOptions,
         lastCandidateInfo,
         targetCandidateInfo,
       },
@@ -79,51 +81,26 @@ async function flip<
     return;
   }
 
-  if (direct) {
+  const flipNext = async (times = 1): Promise<void> => {
+    const nextIndex = (times < maxFlips
+      ? this.getNextCandidateIndex({ mode })
+      : targetIndex
+    );
+    const nextCandidateInfo = this.getCandidateInfo(nextIndex);
+    const currentCandidateInfo = this.getCandidateInfo(this.index);
+
     await flipOneCandidate.call(this, {
-      mode,
-      direct,
-      different,
-      duration,
-      direction,
-      lastCandidateInfo,
-      nextCandidateInfo: targetCandidateInfo,
+      ...flipOptions,
+      lastCandidateInfo: currentCandidateInfo,
+      nextCandidateInfo,
     });
-  } else {
-    const {
-      minFlips,
-      maxFlips,
-    } = this;
-    const flipNext = async (times = 1): Promise<void> => {
-      const nextIndex = (times < maxFlips
-        ? (
-          this.getNextCandidateIndex({
-            mode,
-            different: times < minFlips,
-          })
-        )
-        : targetIndex
-      );
-      const nextCandidateInfo = this.getCandidateInfo(nextIndex);
-      const currentCandidateInfo = this.getCandidateInfo(this.index);
 
-      await flipOneCandidate.call(this, {
-        mode,
-        direct,
-        different,
-        duration,
-        direction,
-        lastCandidateInfo: currentCandidateInfo,
-        nextCandidateInfo,
-      });
+    if (nextIndex !== targetIndex) {
+      await flipNext(times + 1);
+    }
+  };
 
-      if (nextIndex !== targetIndex) {
-        await flipNext(times + 1);
-      }
-    };
-
-    await flipNext();
-  }
+  await flipNext();
 
   triggerEvent<FlipDetail>(
     this,
@@ -133,11 +110,7 @@ async function flip<
       cancelable: false,
       composed: true,
       detail: {
-        mode,
-        direct,
-        different,
-        duration,
-        direction,
+        ...flipOptions,
         lastCandidateInfo,
         targetCandidateInfo,
       },

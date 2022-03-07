@@ -1,4 +1,3 @@
-import Flip from '../../flip';
 import Direction from '../../values/direction';
 import { FlipOneCandidateOptions } from './flipOneCandidate';
 import flippingHorizontally from './horizontal';
@@ -11,10 +10,7 @@ export interface FlipAnimationOption extends Required<FlipOneCandidateOptions> {
 /**
  * Does flipping animation from last candidate to next candidate.
  */
-async function flipAnimation(
-  this: Flip,
-  options: FlipAnimationOption,
-): Promise<void> {
+async function flipAnimation(options: FlipAnimationOption): Promise<void> {
   const { direction } = options;
 
   switch (direction) {
@@ -23,11 +19,11 @@ async function flipAnimation(
 
     case Direction.up:
     case Direction.down:
-      return flippingVertically.call(this, options);
+      return flippingVertically(options);
 
     case Direction.right:
     case Direction.left:
-      return flippingHorizontally.call(this, options);
+      return flippingHorizontally(options);
   }
 }
 

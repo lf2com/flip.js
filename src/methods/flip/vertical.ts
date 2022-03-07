@@ -1,11 +1,10 @@
-import Flip from '../../flip';
 import prefixCss from '../../utils/prefixCss';
 import Direction from '../../values/direction';
 import createTempNode from '../../utils/createTempNode';
 import { FlipAnimationOption } from './flipAnimation';
 import cloneNode from '../../utils/cloneNode';
 
-type StyleGetter = (flip: Flip) => string;
+type StyleGetter = (options: FlipAnimationOption) => string;
 
 const getBackgroundStyle: StyleGetter = () => (`
   :host {
@@ -23,7 +22,7 @@ const getBackgroundStyle: StyleGetter = () => (`
   }
 `);
 
-const getCandidateStyle: StyleGetter = (flip) => (`
+const getCandidateStyle: StyleGetter = (options) => (`
   ${prefixCss(`@keyframes flip {
     0% {
       ${prefixCss('transform: perspective(var(--vert-perspective)) rotateX(0);', 'webkit')}
@@ -34,7 +33,7 @@ const getCandidateStyle: StyleGetter = (flip) => (`
   }`, 'webkit')}
 
   :host {
-    --vert-perspective: ${flip.perspective};
+    --vert-perspective: ${options.perspective};
     --upper-y-top: -100vh;
     --upper-y-bottom: 50%;
     --lower-y-top: 50%;
@@ -78,10 +77,7 @@ const getLastCandidateStyle: StyleGetter = () => (`
 /**
  * Flips candidate vertically.
  */
-function flippingVertically(
-  this: Flip,
-  options: FlipAnimationOption,
-): Promise<void> {
+function flippingVertically(options: FlipAnimationOption): Promise<void> {
   const {
     duration,
     direction,
@@ -94,8 +90,8 @@ function flippingVertically(
   } = lastCandidateInfo;
   const nextCandidateNode = nextCandidateInfo.node as HTMLElement;
   const durationSec = duration / 1000;
-  const domCandidate = createTempNode({ style: getCandidateStyle(this) });
-  const domNext = createTempNode({ style: getNextCandidateStyle(this) });
+  const domCandidate = createTempNode({ style: getCandidateStyle(options) });
+  const domNext = createTempNode({ style: getNextCandidateStyle(options) });
   const domNextCandidate = cloneNode(nextCandidateNode);
 
   switch (direction) {
@@ -123,8 +119,8 @@ function flippingVertically(
   domCandidate.append(domNext);
 
   if (lastCandidateNode) {
-    const domBackground = createTempNode({ style: getBackgroundStyle(this) });
-    const domLast = createTempNode({ style: getLastCandidateStyle(this) });
+    const domBackground = createTempNode({ style: getBackgroundStyle(options) });
+    const domLast = createTempNode({ style: getLastCandidateStyle(options) });
     const domLastCandidate = cloneNode(lastCandidateNode);
     const domLastBackgroundCandidate = cloneNode(lastCandidateNode);
 
