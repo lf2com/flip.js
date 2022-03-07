@@ -509,6 +509,23 @@ Returns the value of candidate element. The value is the same as the attribute v
 console.log('Value:', Flip.getCandidateValue(flip.firstElementChild()));
 ```
 
+#### .flipAnimation(_options_)
+
+Applies flipping animation based on `options`.
+
+Properties of `options`:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| direction | _[Direction](#direction)_ | Direction of flipping animation |
+| duration | _number_ | Duration of flipping per candidate |
+| minFlips | _number_ | Minimum times of flipping passed candidates |
+| maxFlips | _number_ | Maximum times of flipping passed candidates |
+| perspective | _string_ | CSS 3D perspective value for flipping animation |
+| lastCandidateInfo | _[CandidateInfo](#getcandidateinfosource)_ | Object of current candidate info |
+| nextCandidateInfo | _[CandidateInfo](#getcandidateinfosource)_ | Object of target candidate info |
+| tempCandidateNode | _HTMLElement_ | Temporary element for handling flipping animation |
+
 ### Instance
 
 #### .getCandidateNode(_source_)
@@ -562,7 +579,6 @@ Returns the next candidate index with `options`:
 
 | Name | Type | Description |
 | -: | :-: | :- |
-| different? | _boolean_ | Set _`true`_ to pick candidate different from the current one |
 | mode? | _[Mode](#mode)_ | Mode of picking candidate |
 
 #### .getNextCandidateNode(_options?_)
@@ -591,14 +607,16 @@ Properties of `options` extend that of [`.getNextCandidateIndex`](#getnextcandid
 
 | Name | Type | Description |
 | -: | :-: | :- |
-| direct? | _boolean_ | Flip to the target without flipping other candidates |
 | direction? | _[Direction](#direction)_ | Direction of flipping animation |
 | duration? | _number_ | Duration of flipping per candidate |
+| minFlips? | _number_ | Minimum times of flipping passed candidates |
+| maxFlips? | _number_ | Maximum times of flipping passed candidates |
+| perspective? | _string_ | CSS 3D perspective value for flipping animation |
 
 ```js
 // use await to wait until flipping animation ends
 await flip.flip({
-  direct: true,
+  maxFlips: 0,
 });
 ```
 
@@ -623,10 +641,11 @@ Values of `event.detail`:
 | Name | Type | Description |
 | -: | :-: | :- |
 | mode | _[Mode](#mode)_ | Mode of flipping |
-| direct | _boolean_ | `true` to flip only once to the target candidate |
-| different | _boolean_ | `true` to pick the different candidate from the current ont |
-| duration | _number_ | Duration of flipping per candidate |
 | direction | _[Direction](#direction)_ | Direction of flipping animation |
+| duration | _number_ | Duration of flipping per candidate |
+| minFlips | _number_ | Minimum times of flipping passed candidates |
+| maxFlips | _number_ | Maximum times of flipping passed candidates |
+| perspective | _string_ | CSS 3D perspective value for flipping animation |
 | lastCandidateInfo | _[CandidateInfo](#getcandidateinfosource)_ | Object of current candidate info |
 | targetCandidateInfo | _[CandidateInfo](#getcandidateinfosource)_ | Object of target candidate info |
 
