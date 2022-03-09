@@ -1,6 +1,6 @@
 # flip.js
 
-Flip.js is an HTML element for flipping child nodes.
+Flip.js is a HTML element for flipping child nodes.
 
 ---
 
