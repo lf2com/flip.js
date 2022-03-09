@@ -51,23 +51,23 @@ Use flip in HTML:
 Or in JavaScript code:
 
 ```js
-  const flip = document.createElement('flip-pack');
+const flip = document.createElement('flip-pack');
 
-  flip.setAttribute('direction', 'down');
-  flip.setAttribute('mode', 'random');
-  // or
-  flip.direction = 'down';
-  flip.mode = 'random';
+flip.setAttribute('direction', 'down');
+flip.setAttribute('mode', 'random');
+// or
+flip.direction = 'down';
+flip.mode = 'random';
 
-  for (let i = 0; i < 5; i += 1) {
-    const candidate = document.createElement('div');
+for (let i = 0; i < 5; i += 1) {
+  const candidate = document.createElement('div');
 
-    candidate.classList.add('candidate');
-    candidate.innerText = `${i + 1}`;
-    flip.append(candidate);
-  }
+  candidate.classList.add('candidate');
+  candidate.innerText = `${i + 1}`;
+  flip.append(candidate);
+}
 
-  document.body.append(flip);
+document.body.append(flip);
 ```
 
 As flip.js is an element, we can code in jQuery:
@@ -87,7 +87,6 @@ $('<flip-pack>')
     ))
   )
   .appendTo($('body'));
-</script>
 ```
 
 Or in React:
