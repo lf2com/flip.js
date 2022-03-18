@@ -1,23 +1,24 @@
-import prefixCss from '../../utils/prefixCss';
-import Direction from '../../values/direction';
-import createTempNode from '../../utils/createTempNode';
-import { FlipAnimationOption } from './flipAnimation';
-import cloneNode from '../../utils/cloneNode';
+import prefixCss from '../../../utils/prefixCss';
+import Direction from '../../../values/direction';
+import createTempNode from '../../../utils/createTempNode';
+import { FlipAnimationOption } from '../flipAnimation';
+import cloneNode from '../../../utils/cloneNode';
+import Style from './style';
 
 type StyleGetter = (options: FlipAnimationOption) => string;
 
 const getBackgroundStyle: StyleGetter = () => (`
   :host {
-    --upper-y-top: -100vh;
-    --upper-y-bottom: 50%;
-    --lower-y-top: 50%;
-    --lower-y-bottom: calc(100% + 100vh);
+    ${Style.upperYTop}: -100vh;
+    ${Style.upperYBottom}: 50%;
+    ${Style.lowerYTop}: 50%;
+    ${Style.lowerYBottom}: calc(100% + 100vh);
 
     ${prefixCss(`clip-path: polygon(
-      -100vw var(--y-top),
-      calc(100% + 100vw) var(--y-top),
-      calc(100% + 100vw) var(--y-bottom),
-      -100vw var(--y-bottom)
+      -100vw var(${Style.yTop}),
+      calc(100% + 100vw) var(${Style.yTop}),
+      calc(100% + 100vw) var(${Style.yBottom}),
+      -100vw var(${Style.yBottom})
     );`, 'webkit')}
   }
 `);
